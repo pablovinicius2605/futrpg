@@ -1,7 +1,6 @@
 // CONFIGURAÇÃO DO SOCKET.IO (CLIENT-SIDE)
 let socket;
 try {
-  // A chamada vazia io() permite que o Socket.IO identifique a URL do Render automaticamente
   socket = io(); 
 
   socket.on('connect_error', () => {
@@ -68,6 +67,19 @@ let matchState = {
 window.onload = () => {
   loadTeam();
   renderPlayerInputs();
+
+  // Tratamento de Convite por Link via URL (Ex: ?room=SB2K6N)
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomCodeFromUrl = urlParams.get('room');
+  
+  if (roomCodeFromUrl) {
+      setTimeout(() => {
+          openOnlineLobby();
+          document.getElementById('joinRoomCode').value = roomCodeFromUrl.toUpperCase();
+          // Limpa a URL visualmente para não travar em refresh futuro
+          window.history.replaceState({}, document.title, window.location.pathname);
+      }, 500);
+  }
 };
 
 function renderPlayerInputs() {
@@ -173,6 +185,11 @@ function startMode(mode) {
 
 function openOnlineLobby() {
   gameMode = 'online';
+  
+  if (window.location.protocol === 'file:') {
+      alert("ATENÇÃO: Você está acessando o jogo por um arquivo local. Para o multiplayer funcionar entre dois PCs, AMBOS precisam acessar a mesma URL do Render (ex: https://futrpg.onrender.com).");
+  }
+
   showScreen('screen-online');
   document.getElementById('online-setup-controls').classList.remove('hidden');
   document.getElementById('online-lobby-room').classList.add('hidden');
@@ -180,7 +197,7 @@ function openOnlineLobby() {
 
   if (!socket || !socket.connected) {
     const err = document.getElementById('online-error');
-    err.innerText = "Conectando ao servidor multiplayer... Certifique-se de que o server.js está rodando localmente.";
+    err.innerText = "Conectando ao servidor multiplayer... Certifique-se de estar usando o link do Render.";
     err.classList.remove('hidden');
   }
 }
@@ -188,7 +205,7 @@ function openOnlineLobby() {
 function createOnlineRoom() {
   if (!socket || !socket.connected) {
     const err = document.getElementById('online-error');
-    err.innerText = "Servidor offline. Não é possível criar a sala. Verifique se o server.js está ativo.";
+    err.innerText = "Servidor offline. Não é possível criar a sala. Acesse o link oficial.";
     err.classList.remove('hidden');
     return;
   }
@@ -198,7 +215,7 @@ function createOnlineRoom() {
 function joinOnlineRoom() {
   if (!socket || !socket.connected) {
     const err = document.getElementById('online-error');
-    err.innerText = "Servidor offline. Não é possível entrar na sala. Verifique se o server.js está ativo.";
+    err.innerText = "Servidor offline. Não é possível entrar na sala. Acesse o link oficial.";
     err.classList.remove('hidden');
     return;
   }
@@ -218,6 +235,16 @@ function startOnlineMatch() {
   }
 }
 
+function copyInviteLink() {
+  if (!onlineRoomId) return;
+  const link = window.location.origin + window.location.pathname + '?room=' + onlineRoomId;
+  navigator.clipboard.writeText(link).then(() => {
+      alert("Link copiado! Envie este link para o seu amigo.");
+  }).catch(() => {
+      alert("Erro ao copiar o link. Você pode copiar manualmente: " + link);
+  });
+}
+
 function leaveOnlineLobby() {
   onlineRoomId = null;
   onlinePlayerRole = null;
@@ -225,6 +252,7 @@ function leaveOnlineLobby() {
     socket.disconnect(); 
     socket.connect(); 
   }
+  document.getElementById('btn-copy-link').classList.add('hidden');
   showScreen('screen-setup');
 }
 
@@ -242,6 +270,7 @@ if (socket) {
     document.getElementById('lobbyHostName').innerText = onlineHostTeam.name;
     document.getElementById('lobbyHostLogo').src = onlineHostTeam.logo;
     
+    document.getElementById('btn-copy-link').classList.remove('hidden');
     document.getElementById('lobby-status-text').innerText = "Aguardando o adversário (Guest) se conectar...";
   });
 
@@ -269,6 +298,8 @@ if (socket) {
     
     document.getElementById('lobbyHostName').innerText = onlineHostTeam.name;
     document.getElementById('lobbyHostLogo').src = onlineHostTeam.logo;
+    
+    document.getElementById('btn-copy-link').classList.add('hidden');
     
     document.getElementById('lobbyGuestName').innerText = onlineGuestTeam.name;
     document.getElementById('lobbyGuestName').style.color = "#f4f4f5";
