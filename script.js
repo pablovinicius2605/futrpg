@@ -1,4 +1,3 @@
-// script.js
 // CONFIGURAÇÃO DO SOCKET.IO (CLIENT-SIDE)
 let socket;
 try {
