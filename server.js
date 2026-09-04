@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-// Comando crítico para transformar o Node em um servidor web e entregar os arquivos do jogo
+// Transforma o Node em um servidor web e entrega os arquivos do jogo
 app.use(express.static(__dirname));
 
 const io = new Server(server, { 
@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
         const room = rooms[roomCode];
 
         if (!room) {
-            socket.emit('roomError', 'Sala não encontrada ou código inválido.');
+            socket.emit('roomError', 'Sala não encontrada ou código inválido. Verifique se o Host ainda está na sala e se ambos estão usando o mesmo link do Render.');
             return;
         }
 
@@ -137,7 +137,7 @@ io.on('connection', (socket) => {
             if (room.hostId === socket.id || room.guestId === socket.id) {
                 // Emite evento de W.O. para quem ficou na sala
                 io.to(roomId).emit('opponentLeft', { 
-                    message: 'O adversário perdeu a conexão. Fim de jogo por W.O.!' 
+                    message: 'O adversário perdeu a conexão ou fechou a aba. Fim de jogo por W.O.!' 
                 });
                 // Destrói a sala para liberar memória
                 delete rooms[roomId];
