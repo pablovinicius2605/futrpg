@@ -23,6 +23,7 @@ let onlineRoomId = null;
 let onlinePlayerRole = null;
 let onlineHostTeam = null;
 let onlineGuestTeam = null;
+let finishTimeout = null;
 
 // DADOS INICIAIS E OPONENTE IA
 const defaultOpponent = {
@@ -61,7 +62,9 @@ let matchState = {
     kicksA: 0,
     kicksB: 0,
     currentKicker: 'A'
-  }
+  },
+  goalsA: [],
+  goalsB: []
 };
 
 window.onload = () => {
@@ -187,7 +190,7 @@ function openOnlineLobby() {
   gameMode = 'online';
   
   if (window.location.protocol === 'file:') {
-      alert("ATENÇÃO: Você está acessando o jogo por um arquivo local. Para o multiplayer funcionar entre dois PCs, AMBOS precisam acessar a mesma URL do Render (ex: https://futrpg.onrender.com).");
+      alert("ATENÇÃO: Você está acessando o jogo por um arquivo local. Para o multiplayer funcionar entre dois PCs, AMBOS precisam acessar a mesma URL do Render.");
   }
 
   showScreen('screen-online');
@@ -248,6 +251,7 @@ function copyInviteLink() {
 function leaveOnlineLobby() {
   onlineRoomId = null;
   onlinePlayerRole = null;
+  if (finishTimeout) clearTimeout(finishTimeout);
   if (socket) {
     socket.disconnect(); 
     socket.connect(); 
@@ -425,6 +429,8 @@ function narrate(type, atkTeamName, defTeamName, dir) {
     case 'GOAL':
       text = `⚽ [${min}'] 🎉 GOOOOOOOOOOOOL DO ${atkTeamName.toUpperCase()}! ${pAtk} solta a bomba ${cantoTexto}, sem chances para o goleiro ${pGk}!`;
       cssClass += " goal";
+      if (isHomeAtk) matchState.goalsA.push({ player: pAtk, time: min + "'" });
+      else matchState.goalsB.push({ player: pAtk, time: min + "'" });
       break;
     case 'SAVE_CORNER':
       text = `🧤 [${min}'] ✈️ DEFESAÇA DE ${defTeamName.toUpperCase()}! ${pGk} espalma a bola na ${dir.toUpperCase()} e cede ESCANTEIO!`;
@@ -445,6 +451,8 @@ function narrate(type, atkTeamName, defTeamName, dir) {
     case 'PENALTY_GOAL':
       text = `⚽ GOOOOOOOOOOOL NO PÊNALTI DO ${atkTeamName.toUpperCase()}! Cobrança perfeita na ${dir.toUpperCase()}, bola de um lado, goleiro do outro!`;
       cssClass += " goal";
+      if (isHomeAtk) matchState.goalsA.push({ player: pAtk, time: "Pênalti" });
+      else matchState.goalsB.push({ player: pAtk, time: "Pênalti" });
       break;
     case 'PENALTY_SAVE':
       text = `🧤 DEEEEEFEESA NO PÊNALTI! O goleiro do ${defTeamName.toUpperCase()} voa na ${dir.toUpperCase()} e faz a defesa!`;
@@ -456,6 +464,8 @@ function narrate(type, atkTeamName, defTeamName, dir) {
 }
 
 function startEngine(isOnlineReady) {
+  if (finishTimeout) clearTimeout(finishTimeout);
+  
   showScreen('screen-game');
   document.getElementById("narratorLog").innerHTML = "";
   
@@ -478,7 +488,9 @@ function startEngine(isOnlineReady) {
   matchState = {
     half: 1, actionIndex: 1, scoreA: 0, scoreB: 0, currentAttacker: 'A', advanceLevel: 1,
     isCorner: false, isFromCornerShort: false,
-    penalties: { historyA: [], historyB: [], kicksA: 0, kicksB: 0, currentKicker: 'A' }
+    penalties: { historyA: [], historyB: [], kicksA: 0, kicksB: 0, currentKicker: 'A' },
+    goalsA: [],
+    goalsB: []
   };
   
   if (gameMode === 'penalties_only') {
@@ -953,11 +965,61 @@ function logNarrator(msg) {
 function finishMatch() {
   hideAllPanels();
   updateUI();
+  
   if (matchState.half === 5) {
     logNarrator(`🏁 FIM DA DISPUTA DE PÊNALTIS! Placar Final nos Pênaltis: ${matchState.scoreA} x ${matchState.scoreB}`);
   } else {
     logNarrator(`🏁 FIM DE JOGO! Placar Final: ${matchState.scoreA} x ${matchState.scoreB}`);
   }
+
+  // Espera 3.5 segundos para o jogador ler a narração final antes de mostrar o resumo
+  finishTimeout = setTimeout(() => {
+    showSummaryScreen();
+  }, 3500);
+}
+
+function showSummaryScreen() {
+  showScreen('screen-summary');
+  const teams = getActiveTeams();
+  
+  document.getElementById('sumTeamA_Name').innerText = teams.A.name;
+  document.getElementById('sumTeamA_Logo').src = teams.A.logo;
+  document.getElementById('sumScoreA').innerText = matchState.scoreA;
+  
+  document.getElementById('sumTeamB_Name').innerText = teams.B.name;
+  document.getElementById('sumTeamB_Logo').src = teams.B.logo;
+  document.getElementById('sumScoreB').innerText = matchState.scoreB;
+  
+  const goalsA_HTML = matchState.goalsA.map(g => `<div>⚽ ${g.player} <span style="color:var(--gold); font-size:0.85rem;">(${g.time})</span></div>`).join('');
+  document.getElementById('sumGoalsA').innerHTML = goalsA_HTML || '<div style="color:#71717a; text-align:center;">Nenhum gol</div>';
+  
+  const goalsB_HTML = matchState.goalsB.map(g => `<div>⚽ ${g.player} <span style="color:var(--gold); font-size:0.85rem;">(${g.time})</span></div>`).join('');
+  document.getElementById('sumGoalsB').innerHTML = goalsB_HTML || '<div style="color:#71717a; text-align:center;">Nenhum gol</div>';
+
+  if (gameMode === 'online') {
+      if (onlinePlayerRole === 'A') {
+          document.getElementById('btn-play-again').classList.remove('hidden');
+          document.getElementById('sum-waiting-host').classList.add('hidden');
+      } else {
+          document.getElementById('btn-play-again').classList.add('hidden');
+          document.getElementById('sum-waiting-host').classList.remove('hidden');
+      }
+  } else {
+      document.getElementById('btn-play-again').classList.remove('hidden');
+      document.getElementById('sum-waiting-host').classList.add('hidden');
+  }
+}
+
+function playAgain() {
+    if (gameMode === 'online') {
+        if (!socket || !socket.connected) return;
+        document.getElementById('btn-play-again').classList.add('hidden');
+        document.getElementById('sum-waiting-host').innerText = "Reiniciando a partida...";
+        document.getElementById('sum-waiting-host').classList.remove('hidden');
+        socket.emit('playAgain', onlineRoomId);
+    } else {
+        startMode(gameMode);
+    }
 }
 
 function updateUI() {
@@ -1034,10 +1096,11 @@ function renderPenaltyDots(containerId, history) {
 }
 
 function quitMatch() {
-  if (confirm("Tem certeza que deseja sair da partida e voltar ao menu?")) {
+  if (confirm("Tem certeza que deseja sair e voltar ao menu?")) {
     if (gameMode === 'online') {
       leaveOnlineLobby();
     } else {
+      if (finishTimeout) clearTimeout(finishTimeout);
       showScreen("screen-setup");
     }
   }
