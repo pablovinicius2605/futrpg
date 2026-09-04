@@ -1,3 +1,4 @@
+// script.js
 // CONFIGURAÇÃO DO SOCKET.IO (CLIENT-SIDE)
 let socket;
 try {
@@ -87,7 +88,7 @@ function renderPlayerInputs() {
   if (!container) return;
   container.innerHTML = "";
   team.players.forEach((p, i) => {
-    container.innerHTML += `<input type="text" class="p-name" value="${p}" style="width:48%;" placeholder="Jogador ${i+1}">`;
+    container.innerHTML += `<input type="text" class="p-name" value="${p}" placeholder="Jogador ${i+1}">`;
   });
 }
 
