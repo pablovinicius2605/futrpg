@@ -1,0 +1,94 @@
+/* style.css */
+:root {
+  --home-color: #00b37e;
+  --away-color: #f75a68;
+  --bg: #09090b;
+  --card: #18181b;
+  --border: #27272a;
+  --text: #f4f4f5;
+  --gold: #eab308;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
+body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+.container { width: 100%; max-width: 850px; position: relative; }
+.card { background: var(--card); padding: 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+.hidden { display: none !important; }
+.flex { display: flex; gap: 12px; align-items: center; }
+.flex-wrap { display: flex; flex-wrap: wrap; gap: 10px; }
+.subtitle { color: #a1a1aa; font-size: 0.9rem; margin-bottom: 10px; }
+.divider { border-color: var(--border); margin: 20px 0; }
+.error-text { color: #ef4444; margin-top: 10px; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid #ef4444; }
+
+/* INPUTS E BOTÕES */
+input[type="text"], select, button { width: 100%; padding: 12px; margin-top: 6px; margin-bottom: 12px; border-radius: 6px; border: 1px solid var(--border); background: #000; color: #fff; font-size: 0.95rem; }
+button { background: var(--home-color); font-weight: bold; cursor: pointer; border: none; transition: all 0.2s; }
+button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+.btn-secondary { background: #27272a; color: #fff; }
+.btn-danger { background: #ef4444; color: #fff; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-large { font-size: 1.1rem; padding: 15px; }
+
+/* OVERLAYS (BLOQUEIO UI E SPINNER) */
+.overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 9, 11, 0.85); z-index: 1000; border-radius: 12px; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.overlay-content { text-align: center; }
+.spinner { border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: var(--gold); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* LOGO */
+.logo-preview { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background: #000; }
+
+/* PLACAR E HUD */
+.scoreboard { display: flex; justify-content: space-between; align-items: center; background: #000; border-radius: 10px; padding: 15px 20px; border: 1px solid var(--border); }
+.team-display { display: flex; align-items: center; gap: 12px; flex: 1; padding: 8px; border-radius: 8px; transition: all 0.3s; }
+.team-display.away { justify-content: flex-end; text-align: right; }
+.team-badge { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; }
+.team-meta { font-size: 0.75rem; color: #a1a1aa; }
+.score-center { text-align: center; padding: 0 15px; }
+.score-num { font-size: 2.5rem; font-weight: 900; font-family: monospace; letter-spacing: 2px; }
+.match-time { font-size: 0.9rem; font-weight: bold; color: var(--gold); }
+.match-phase { font-size: 0.75rem; color: #a1a1aa; text-transform: uppercase; }
+
+/* PLACAR EXCLUSIVO DE PÊNALTIS */
+.penalties-scoreboard { background: #000; border: 2px solid var(--gold); border-radius: 10px; overflow: hidden; }
+.penalty-title-bar { background: var(--gold); color: #000; font-weight: 900; text-align: center; font-size: 0.85rem; padding: 4px; letter-spacing: 1px; }
+.penalty-hud-content { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+.penalty-team { display: flex; align-items: center; gap: 10px; flex: 1; }
+.penalty-team.away { justify-content: flex-end; }
+.penalty-score { font-size: 2.2rem; font-weight: 900; font-family: monospace; padding: 0 15px; color: #fff; }
+.penalty-dots { display: flex; gap: 5px; margin: 0 8px; flex-wrap: wrap; }
+.dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #52525b; background: #27272a; display: inline-block; }
+.dot.success { background: #22c55e; border-color: #4ade80; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); }
+.dot.fail { background: #ef4444; border-color: #f87171; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
+
+/* BADGES DE ATAQUE/DEFESA */
+.role-badge { font-size: 0.65rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+.team-display.attacking { border: 2px solid var(--home-color); background: rgba(0, 179, 126, 0.1); }
+.team-display.defending { border: 1px dashed var(--border); opacity: 0.7; }
+.team-display.attacking .role-badge { background: var(--home-color); color: #000; }
+.team-display.defending .role-badge { background: #3f3f46; color: #fff; }
+
+/* BARRA DE AVANÇO E CONTADOR */
+.possession-bar-container { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 15px 0; }
+.action-counter-bar { font-size: 0.8rem; font-weight: bold; color: #38bdf8; text-align: center; margin-bottom: 4px; }
+.possession-info { font-size: 0.85rem; font-weight: bold; color: var(--gold); text-align: center; margin-bottom: 8px; }
+.advance-stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.step { background: #27272a; font-size: 0.7rem; padding: 8px 4px; border-radius: 4px; text-align: center; color: #71717a; border: 1px solid transparent; }
+.step.active { background: var(--home-color); color: #000; font-weight: bold; border-color: #fff; }
+
+/* NARRAÇÃO */
+.narrator-box { background: #000; border-left: 4px solid var(--home-color); padding: 15px; border-radius: 6px; margin-bottom: 20px; height: 180px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.92rem; line-height: 1.6; }
+.narrator-line { margin-bottom: 8px; color: #d4d4d8; }
+.narrator-line.atk { color: #38bdf8; }
+.narrator-line.def { color: #f43f5e; }
+.narrator-line.goal { color: #22c55e; font-weight: bold; font-size: 1.05rem; }
+
+/* BOTÕES DE JOGADA */
+.action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.action-btn { background: #27272a; border: 1px solid var(--border); padding: 15px; border-radius: 8px; font-weight: bold; }
+.action-btn:hover { border-color: var(--home-color); }
+.attack-header { color: var(--home-color); }
+.defense-header { color: var(--away-color); }
+.cantos-header { color: var(--gold); }
+
+/* MODAL TIEBREAKER */
+.card-modal { background: #18181b; border: 2px solid var(--gold); text-align: center; padding: 20px; border-radius: 8px; }

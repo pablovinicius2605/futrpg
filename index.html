@@ -1,0 +1,318 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FutRPG - Simulador Tático Profissional</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Script do Socket.IO Client -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+<div class="container">
+  
+  <!-- OVERLAY DE CARREGAMENTO / ESPERA -->
+  <div id="waiting-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <div class="spinner"></div>
+      <h3 id="waiting-text" style="color: var(--gold); margin-top: 15px;">Aguardando ação do adversário...</h3>
+    </div>
+  </div>
+
+  <!-- TELA 1: MENU E CONFIGURAÇÃO DO TIME -->
+  <div id="screen-setup" class="card">
+    <div class="flex header-title">
+      <h1>FutRPG - Menu Inicial</h1>
+      <img id="menuLogoDisplay" class="logo-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%2327272a'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>" />
+    </div>
+    
+    <label>Nome do Clube:</label>
+    <input type="text" id="teamName" value="Meu Time FC" />
+    
+    <div class="flex">
+      <div style="flex:1;">
+        <label>Cor do Time:</label>
+        <input type="color" id="teamColor" value="#00b37e" style="height:48px;" />
+      </div>
+      <div style="flex:2;">
+        <label>Forma Tática:</label>
+        <select id="teamFormation">
+          <option>4-3-3</option>
+          <option>4-4-2</option>
+          <option>3-5-2</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Logotipo / Escudo do Time:</label>
+    <input type="file" id="logoInput" accept="image/*" onchange="handleLogoUpload(event)" />
+
+    <h3 style="margin-top:15px;">Escalação dos 11 Jogadores</h3>
+    <div id="playersInput" class="flex-wrap"></div>
+
+    <div class="flex" style="margin-top:15px;">
+      <button onclick="saveTeam()">Salvar Alterações</button>
+      <button class="btn-secondary" onclick="exportSave()">Baixar Save</button>
+      <button class="btn-secondary" onclick="document.getElementById('importFile').click()">Carregar Save</button>
+      <input type="file" id="importFile" class="hidden" accept=".json" onchange="importSave(event)" />
+    </div>
+
+    <hr class="divider" />
+    
+    <h2>Iniciar Partida</h2>
+    <div class="flex">
+      <button onclick="startMode('ia')" class="btn-large">Jogar Partida Completa (IA)</button>
+      <button onclick="startMode('penalties_only')" class="btn-large btn-gold">Disputa de Pênaltis Direto</button>
+    </div>
+    <div class="flex" style="margin-top: 10px;">
+      <button onclick="startMode('online')" class="btn-secondary btn-large">Modo Online (Matchmaking Privado)</button>
+    </div>
+  </div>
+
+  <!-- TELA 2: LOBBY ONLINE -->
+  <div id="screen-online" class="card hidden">
+    <h2>Lobby Multiplayer</h2>
+    
+    <div id="online-setup-controls">
+      <p class="subtitle">Crie uma sala para ser o Host (TIME A) ou entre com o código do seu amigo (TIME B).</p>
+      
+      <button onclick="createOnlineRoom()" class="btn-large">Criar Nova Sala (Host)</button>
+      
+      <div style="margin: 20px 0; text-align: center; color: #a1a1aa; font-weight: bold;">OU</div>
+      
+      <label>Código da Sala:</label>
+      <input type="text" id="joinRoomCode" placeholder="Digite os 6 caracteres..." maxlength="6" style="text-transform: uppercase; font-size: 1.2rem; text-align: center; letter-spacing: 2px;" />
+      <button onclick="joinOnlineRoom()" class="btn-secondary btn-large">Entrar na Sala (Guest)</button>
+      
+      <p id="online-error" class="error-text hidden"></p>
+    </div>
+
+    <div id="online-lobby-room" class="hidden">
+      <h3 style="text-align: center;">CÓDIGO DA SALA: <span id="lobby-room-code-display" style="color: var(--gold); font-size: 2rem; letter-spacing: 4px;"></span></h3>
+      <p id="lobby-status-text" class="subtitle" style="text-align: center; margin-bottom: 20px;">Aguardando o adversário se conectar...</p>
+      
+      <div class="flex" style="align-items: stretch;">
+        <div class="team-display home" style="flex:1; flex-direction: column; text-align: center;">
+          <img id="lobbyHostLogo" class="team-badge" style="width: 80px; height: 80px; margin-bottom: 10px;" />
+          <strong id="lobbyHostName">TIME A</strong>
+          <span class="role-badge" style="background: var(--home-color); color:#000; margin-top: 5px;">HOST (ATACA 1º TEMPO)</span>
+        </div>
+        
+        <div style="display: flex; align-items: center; justify-content: center; padding: 0 20px;">
+          <strong style="font-size: 2rem; color: #71717a;">X</strong>
+        </div>
+        
+        <div class="team-display away" style="flex:1; flex-direction: column; text-align: center; justify-content: center;">
+          <img id="lobbyGuestLogo" class="team-badge hidden" style="width: 80px; height: 80px; margin-bottom: 10px;" />
+          <strong id="lobbyGuestName" style="color: #a1a1aa;">Aguardando Conexão...</strong>
+          <span id="lobbyGuestBadge" class="role-badge hidden" style="background: #3f3f46; color:#fff; margin-top: 5px;">GUEST (DEFENDE 1º TEMPO)</span>
+        </div>
+      </div>
+
+      <button id="btn-start-online" onclick="startOnlineMatch()" class="btn-large btn-gold hidden" style="margin-top: 25px;">Iniciar Partida Oficial</button>
+    </div>
+
+    <button onclick="leaveOnlineLobby()" class="btn-danger" style="margin-top:15px;">Cancelar e Voltar ao Menu</button>
+  </div>
+
+  <!-- TELA 3: CAMPO DE JOGO PROFISSIONAL -->
+  <div id="screen-game" class="card hidden">
+    
+    <!-- PLACAR PRINCIPAL DA PARTIDA REGULAR -->
+    <div class="scoreboard" id="regularScoreboard">
+      <div class="team-display home" id="hudHomeCard">
+        <img id="hudHomeLogo" class="team-badge" />
+        <div>
+          <strong id="hudHomeName">TIME A</strong>
+          <div class="team-meta" id="hudHomeForm">4-3-3</div>
+        </div>
+        <span class="role-badge hidden" id="badgeHomeRole">ATACANDO</span>
+      </div>
+      <div class="score-center">
+        <div class="match-time" id="hudMatchTime">0'</div>
+        <div class="score-num"><span id="scoreA">0</span> - <span id="scoreB">0</span></div>
+        <div class="match-phase" id="hudMatchPhase">1º Tempo</div>
+      </div>
+      <div class="team-display away" id="hudAwayCard">
+        <span class="role-badge hidden" id="badgeAwayRole">DEFENDENDO</span>
+        <div>
+          <strong id="hudAwayName">TIME B</strong>
+          <div class="team-meta" id="hudAwayForm">4-4-2</div>
+        </div>
+        <img id="hudAwayLogo" class="team-badge" />
+      </div>
+    </div>
+
+    <!-- PLACAR EXCLUSIVO DE PÊNALTIS -->
+    <div class="penalties-scoreboard hidden" id="penaltiesScoreboard">
+      <div class="penalty-title-bar">DISPUTA DE PÊNALTIS</div>
+      <div class="penalty-hud-content">
+        <div class="penalty-team">
+          <img id="penHomeLogo" class="team-badge" />
+          <strong id="penHomeName">TIME A</strong>
+          <div class="penalty-dots" id="penHomeDots"></div>
+        </div>
+        <div class="penalty-score"><span id="penScoreA">0</span> - <span id="penScoreB">0</span></div>
+        <div class="penalty-team away">
+          <div class="penalty-dots" id="penAwayDots"></div>
+          <strong id="penAwayName">TIME B</strong>
+          <img id="penAwayLogo" class="team-badge" />
+        </div>
+      </div>
+    </div>
+
+    <!-- INDICADOR DE SEQUÊNCIA DE AÇÕES E AVANÇO -->
+    <div class="possession-bar-container" id="possessionContainer">
+      <div class="action-counter-bar" id="actionCounterText">Ação 1 de 5 (Faltam 4 ações neste tempo)</div>
+      <div class="possession-info" id="possessionText">Posse de Bola: -</div>
+      <div class="advance-stepper" id="advanceStepper">
+        <div class="step" id="step1">1º Avanço (Campo Defensivo)</div>
+        <div class="step" id="step2">2º Avanço (Meio-Campo)</div>
+        <div class="step" id="step3">3º Avanço (Entrada da Área)</div>
+        <div class="step" id="step4">4º Avanço (CANTOS)</div>
+      </div>
+    </div>
+
+    <!-- NARRAÇÃO DO NARRADOR -->
+    <div class="narrator-box" id="narratorLog"></div>
+
+    <!-- PAINEL DE ATAQUE -->
+    <div id="panel-attack" class="hidden">
+      <h3 id="attack-title" class="attack-header">⚔️ SEU TURNO DE ATAQUE!</h3>
+      <p class="subtitle">Escolha como superar a marcação do adversário:</p>
+      <div class="action-grid" id="attack-buttons"></div>
+    </div>
+
+    <!-- PAINEL DE DEFESA -->
+    <div id="panel-defense" class="hidden">
+      <h3 class="defense-header">🛡️ SEU TURNO DE DEFESA!</h3>
+      <p class="subtitle">Adivinhe a intenção do atacante para roubar a bola:</p>
+      <div class="action-grid" id="defense-buttons"></div>
+    </div>
+
+    <!-- PAINEL DE ESCANTEIO (ATAQUE) -->
+    <div id="panel-corner-attack" class="hidden">
+      <h3 class="cantos-header">🚩 ESTRATÉGIA DE ESCANTEIO!</h3>
+      <p class="subtitle">Escolha como vai cobrar o escanteio:</p>
+      <div class="action-grid">
+        <button class="action-btn" onclick="submitGameAction('CORNER', 'OLIMPICO')">⚽ OLÍMPICO</button>
+        <button class="action-btn" onclick="submitGameAction('CORNER', 'MUVUCA')">🏃 MUVUCA</button>
+        <button class="action-btn" onclick="submitGameAction('CORNER', 'CURTO')">👟 CURTO</button>
+      </div>
+    </div>
+
+    <!-- PAINEL DE ESCANTEIO (DEFESA) -->
+    <div id="panel-corner-defense" class="hidden">
+      <h3 class="defense-header">🛡️ DEFESA NO ESCANTEIO!</h3>
+      <p class="subtitle">Adivinhe a cobrança do adversário para cortar o lance:</p>
+      <div class="action-grid">
+        <button class="action-btn" onclick="submitGameAction('CORNER', 'OLIMPICO')">🛑 BLOQUEAR OLÍMPICO</button>
+        <button class="action-btn" onclick="submitGameAction('CORNER', 'MUVUCA')">🚀 AFASTAR MUVUCA</button>
+        <button class="action-btn" onclick="submitGameAction('CORNER', 'CURTO')">🚶 CERCAR ESCANTEIO CURTO</button>
+      </div>
+    </div>
+
+    <!-- PAINEL CANTOS (CHUTE A GOL E PÊNALTIS) -->
+    <div id="panel-cantos" class="hidden">
+      <h3 class="cantos-header" id="cantosTitle">🎯 HORA DO CHUTE! DEFINA O CANTO!</h3>
+      <p class="subtitle" id="cantosSubtitle">Escolha a direção da bola no gol:</p>
+      <div class="action-grid">
+        <button class="action-btn" onclick="submitGameAction('DIRECTION', 'ESQUERDA')">⬅️ ESQUERDA</button>
+        <button class="action-btn" onclick="submitGameAction('DIRECTION', 'MEIO')">⏺️ MEIO</button>
+        <button class="action-btn" onclick="submitGameAction('DIRECTION', 'DIREITA')">➡️ DIREITA</button>
+      </div>
+    </div>
+
+    <!-- MODAL DE DECISÃO EM CASO DE EMPATE -->
+    <div id="panel-tiebreaker" class="card-modal hidden">
+      <h3 id="tiebreaker-title">⚖️ O JOGO TERMINOU EMPATADO!</h3>
+      <p id="tiebreaker-subtitle">Como desejam decidir o vencedor?</p>
+      <div class="action-grid" id="tiebreaker-buttons" style="margin-top:15px;">
+        <button onclick="handleTiebreakerChoice('end')">🛑 Encerrar Empatado</button>
+        <button onclick="handleTiebreakerChoice('extra')">⏱️ Jogar Prorrogação (+2 Tempos)</button>
+        <button onclick="handleTiebreakerChoice('penalties')">🥅 Ir Direto para os Pênaltis</button>
+      </div>
+      <div id="tiebreaker-waiting" class="hidden" style="margin-top: 15px; color: var(--gold); font-weight: bold;">
+        Aguardando o Host (Time A) decidir o desempate...
+      </div>
+    </div>
+
+    <button onclick="quitMatch()" class="btn-danger" style="margin-top: 25px;">🚪 Desistir e Voltar ao Menu</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+<!-- PAINEL DE TESTES / DEBUG -->
+<div id="debug-panel" style="position: fixed; bottom: 10px; right: 10px; background: #121214; color: #fff; padding: 12px; border-radius: 8px; z-index: 9999; border: 1px solid #00b37e; font-family: sans-serif; width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #323238; padding-bottom: 6px;">
+    <strong style="font-size: 13px; color: #00b37e;">🛠 PAINEL DE TESTES</strong>
+    <button onclick="document.getElementById('debug-content').classList.toggle('hidden')" style="background: none; border: none; color: #aaa; cursor: pointer; font-size: 11px;">[Minimizar]</button>
+  </div>
+  <div id="debug-content" style="display: flex; flex-direction: column; gap: 6px; max-height: 400px; overflow-y: auto;">
+    <span style="font-size: 10px; color: #8d8d99; text-transform: uppercase; font-weight: bold;">TESTAR REGRAS ESPECIAIS</span>
+    <button onclick="debugForceExtraScenario()" style="padding: 6px; background: #eab308; color: #000; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">⚡ Forçar Cenário de EXTRA</button>
+    <span style="font-size: 10px; color: #8d8d99; text-transform: uppercase; font-weight: bold; margin-top: 4px;">TESTAR ESCANTEIOS</span>
+    <button onclick="debugForceCorner('A')" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">🚩 Escanteio (Atacando)</button>
+    <button onclick="debugForceCorner('B')" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">🛡️ Escanteio (Defendendo)</button>
+    <button onclick="debugForceCornerShoot()" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">🎯 Chute vindo de Escanteio</button>
+    <span style="font-size: 10px; color: #8d8d99; text-transform: uppercase; font-weight: bold; margin-top: 4px;">FASES & AVANÇOS</span>
+    <button onclick="debugSetAdvance(1)" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">1º Avanço (Campo Defensivo)</button>
+    <button onclick="debugSetAdvance(2)" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">2º Avanço (Meio-Campo)</button>
+    <button onclick="debugSetAdvance(3)" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">3º Avanço (Entrada da Área)</button>
+    <button onclick="debugSetAdvance(4)" style="padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left;">4º Avanço (Chute / Cantos)</button>
+    <span style="font-size: 10px; color: #8d8d99; text-transform: uppercase; font-weight: bold; margin-top: 4px;">PLACAR & PARTIDA</span>
+    <div style="display: flex; gap: 4px;">
+      <button onclick="debugAddScore('A')" style="flex: 1; padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px;">+1 Gol Meu Time</button>
+      <button onclick="debugAddScore('B')" style="flex: 1; padding: 6px; background: #202024; color: #fff; border: 1px solid #323238; border-radius: 4px; cursor: pointer; font-size: 11px;">+1 Gol Rival</button>
+    </div>
+    <button onclick="debugForcePenalties()" style="padding: 6px; background: #f75a68; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">🥅 Ir para os Pênaltis</button>
+    <button onclick="debugNextHalf()" style="padding: 6px; background: #323238; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">⏱️ Avançar Tempo de Jogo</button>
+  </div>
+</div>
+<script>
+// === FUNÇÕES DE SUPORTE DO PAINEL DE TESTES === //
+function debugForceExtraScenario() {
+  matchState.actionIndex = 5;
+  matchState.advanceLevel = 1;
+  matchState.isCorner = false;
+  matchState.isFromCornerShort = false;
+  isExtraAction = false;
+  initTurn();
+  alert("Cenário preparado! Você está na 5ª ação, 1º Avanço. Se perder a bola agora, ativará o EXTRA!");
+}
+function debugForceCorner(attacker) {
+  matchState.currentAttacker = attacker;
+  matchState.isCorner = true;
+  matchState.isFromCornerShort = false;
+  initTurn();
+}
+function debugForceCornerShoot() {
+  matchState.isFromCornerShort = true;
+  triggerCantos();
+}
+function debugSetAdvance(level) {
+  matchState.isCorner = false;
+  matchState.advanceLevel = level;
+  if (level === 4) {
+    triggerCantos();
+  } else {
+    initTurn();
+  }
+}
+function debugAddScore(teamTarget) {
+  if (teamTarget === 'A') matchState.scoreA++;
+  else matchState.scoreB++;
+  updateUI();
+}
+function debugForcePenalties() {
+  startPenalties();
+}
+function debugNextHalf() {
+  matchState.actionIndex = 5;
+  nextAction();
+}
+</script>
+</body>
+</html>
