@@ -91,6 +91,7 @@ io.on('connection', (socket) => {
         const room = rooms[roomId];
         if (room && room.hostId === socket.id && room.guestId !== null) {
             room.status = 'PLAYING';
+            room.pendingMoves = { A: null, B: null };
             io.to(roomId).emit('gameStarted');
             console.log(`[Partida Iniciada] Sala: ${roomId}`);
         }
@@ -127,7 +128,18 @@ io.on('connection', (socket) => {
         }
     });
 
-    // 6. Resiliência e Desconexões (Drop-out)
+    // 6. Solicitar Revanche (Jogar Novamente - Apenas Host)
+    socket.on('playAgain', (roomId) => {
+        const room = rooms[roomId];
+        if (room && room.hostId === socket.id) {
+            room.status = 'PLAYING';
+            room.pendingMoves = { A: null, B: null };
+            io.to(roomId).emit('gameStarted');
+            console.log(`[Revanche Iniciada] Sala: ${roomId}`);
+        }
+    });
+
+    // 7. Resiliência e Desconexões (Drop-out)
     socket.on('disconnect', () => {
         console.log(`[Socket Desconectado] ID: ${socket.id}`);
         
