@@ -1,13 +1,13 @@
-// script.js
 // CONFIGURAÇÃO DO SOCKET.IO (CLIENT-SIDE)
 let socket;
 try {
-  socket = io(); // <-- SUBSTITUÍDO AQUI
+  // A chamada vazia io() permite que o Socket.IO identifique a URL do Render automaticamente
+  socket = io(); 
 
   socket.on('connect_error', () => {
     const err = document.getElementById('online-error');
     if (err && gameMode === 'online') {
-      err.innerText = "Falha ao conectar. Verifique se o servidor Node.js (server.js) está rodando na porta 3000.";
+      err.innerText = "Falha ao conectar. Verifique se o servidor Node.js (server.js) está rodando.";
       err.classList.remove('hidden');
     }
   });
