@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -6,10 +5,11 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.static(__dirname)); // <-- LINHA ADICIONADA AQUI
+// Comando crítico para transformar o Node em um servidor web e entregar os arquivos do jogo
+app.use(express.static(__dirname));
 
 const io = new Server(server, { 
-    cors: {
+    cors: { 
         origin: "*",
         methods: ["GET", "POST"]
     } 
