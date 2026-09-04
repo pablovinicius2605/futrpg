@@ -111,6 +111,15 @@ button:hover { filter: brightness(1.2); transform: translateY(-1px); }
 /* MODAL TIEBREAKER */
 .card-modal { background: #18181b; border: 2px solid var(--gold); text-align: center; padding: 20px; border-radius: 8px; }
 
+/* TELA DE RESUMO DE FIM DE JOGO */
+.summary-header { text-align: center; color: var(--gold); margin-bottom: 20px; font-size: 2rem; letter-spacing: 2px; }
+.summary-score-board { display: flex; align-items: center; justify-content: space-between; background: #000; padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+.summary-team { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
+.summary-score { font-size: 4rem; font-weight: 900; color: #fff; padding: 0 20px; font-family: monospace; }
+.summary-goals { display: flex; justify-content: space-between; gap: 15px; }
+.summary-goals-col { flex: 1; background: #18181b; padding: 15px; border-radius: 8px; border: 1px solid var(--border); min-height: 100px; text-align: left; }
+.summary-goals-col div { margin-bottom: 8px; font-size: 0.95rem; color: #f4f4f5; }
+
 /* --- RESPONSIVIDADE PARA CELULAR --- */
 @media (max-width: 768px) {
   body {
@@ -184,6 +193,23 @@ button:hover { filter: brightness(1.2); transform: translateY(-1px); }
   }
   .lobby-versus {
     padding: 5px 0;
+  }
+
+  /* Resumo Pós-Jogo */
+  .summary-score-board {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .summary-score {
+    font-size: 3rem;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    text-align: center;
+  }
+  .summary-goals {
+    flex-direction: column;
   }
 
   /* Avanços e Painéis */
