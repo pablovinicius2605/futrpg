@@ -306,6 +306,37 @@
 
     <button onclick="quitMatch()" class="btn-danger" style="margin-top: 25px;">🚪 Desistir e Voltar ao Menu</button>
   </div>
+
+  <!-- TELA 4: RESUMO DE FIM DE JOGO -->
+  <div id="screen-summary" class="card hidden">
+    <h2 class="summary-header">🏁 FIM DE JOGO</h2>
+    
+    <div class="summary-score-board">
+      <div class="summary-team">
+        <img id="sumTeamA_Logo" class="team-badge" style="width: 80px; height: 80px;" />
+        <strong id="sumTeamA_Name" style="display:block; margin-top:10px;">TIME A</strong>
+      </div>
+      <div class="summary-score">
+        <span id="sumScoreA">0</span> - <span id="sumScoreB">0</span>
+      </div>
+      <div class="summary-team">
+        <img id="sumTeamB_Logo" class="team-badge" style="width: 80px; height: 80px;" />
+        <strong id="sumTeamB_Name" style="display:block; margin-top:10px;">TIME B</strong>
+      </div>
+    </div>
+
+    <h3 style="text-align:center; color:#a1a1aa; margin-bottom: 15px;">⚽ Autores dos Gols</h3>
+    <div class="summary-goals">
+      <div class="summary-goals-col" id="sumGoalsA"></div>
+      <div class="summary-goals-col" id="sumGoalsB"></div>
+    </div>
+
+    <div style="margin-top: 25px; text-align: center;">
+      <button id="btn-play-again" onclick="playAgain()" class="btn-large btn-gold" style="margin-bottom: 15px;">🔄 Jogar Novamente</button>
+      <p id="sum-waiting-host" class="hidden" style="color: var(--gold); font-weight: bold; margin-bottom: 15px;">Aguardando o Host reiniciar a partida...</p>
+      <button onclick="quitMatch()" class="btn-danger">🚪 Voltar ao Menu Inicial</button>
+    </div>
+  </div>
 </div>
 
 <script src="script.js"></script>
