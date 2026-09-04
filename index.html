@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -65,9 +64,71 @@
       <button onclick="startMode('ia')" class="btn-large">Jogar Partida Completa (IA)</button>
       <button onclick="startMode('penalties_only')" class="btn-large btn-gold">Disputa de Pênaltis Direto</button>
     </div>
-    <div class="flex" style="margin-top: 10px;">
+    <div class="flex responsive-flex" style="margin-top: 10px;">
       <button onclick="startMode('online')" class="btn-secondary btn-large">Modo Online (Matchmaking Privado)</button>
+      <button onclick="showScreen('screen-tutorial')" class="btn-secondary btn-large">📖 Como Jogar (Tutorial)</button>
     </div>
+  </div>
+
+  <!-- TELA 1.5: TUTORIAL E REGRAS -->
+  <div id="screen-tutorial" class="card hidden">
+    <h2 style="text-align: center; color: var(--gold); margin-bottom: 20px;">📖 Manual de Regras - FutRPG</h2>
+    
+    <div class="tutorial-content">
+      <div class="tutorial-section">
+        <h3>⏱️ Estrutura da Partida</h3>
+        <ul>
+          <li>O jogo é dividido em <strong>2 Tempos</strong>.</li>
+          <li>Cada tempo possui um limite de <strong>5 Ações</strong> (turnos).</li>
+          <li>No seu turno, você escolhe uma ação de Ataque ou Defesa dependendo de quem tem a posse de bola.</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-section">
+        <h3>🏃 Avanços no Campo</h3>
+        <ul>
+          <li>Para chegar ao gol, você precisa avançar pelas zonas: <strong>Defesa (1) ➔ Meio-Campo (2) ➔ Ataque (3)</strong>.</li>
+          <li>Avançar com sucesso leva você à próxima zona. Se perder a bola, o adversário retoma a posse na zona 1.</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-section">
+        <h3>⚔️ Combate: Ataque vs Defesa</h3>
+        <ul>
+          <li>A mecânica funciona como "Pedra, Papel e Tesoura":</li>
+          <li><strong>Drible</strong> é anulado por <strong>Dividida</strong>.</li>
+          <li><strong>Passe</strong> é anulado por <strong>Interceptação</strong>.</li>
+          <li><strong>Chute</strong> (a partir do Meio-Campo) é anulado por <strong>Bloqueio</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-section">
+        <h3>🎯 Chutes e Gols (Cantos)</h3>
+        <ul>
+          <li>Se o Chute não for bloqueado (ou no 4º Avanço), inicia-se a fase de <strong>Cantos</strong>.</li>
+          <li>O Atacante escolhe a direção (Esquerda, Meio, Direita) e o Defensor escolhe onde o goleiro pula.</li>
+          <li>Se o goleiro adivinhar o canto, ocorre um <strong>Escanteio</strong> (exceto no Meio, que é defesa firme).</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-section">
+        <h3>🚩 Escanteios</h3>
+        <ul>
+          <li><strong>Olímpico:</strong> Vai direto pro gol (Cantos). Anulado por Bloquear Olímpico.</li>
+          <li><strong>Muvuca:</strong> Cruzamento na área (Cantos). Anulado por Afastar Muvuca.</li>
+          <li><strong>Curto:</strong> Toca na lateral e avança para a Zona 3. Anulado por Cercar Escanteio Curto.</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-section">
+        <h3>⚡ Regra do Contra-Ataque Extra</h3>
+        <ul>
+          <li>Se um time perder a bola logo no <strong>1º Avanço</strong> da <strong>Última Ação (5ª)</strong> do tempo, o adversário ganha um turno EXTRA letal de contra-ataque.</li>
+        </ul>
+      </div>
+    </div>
+
+    <button onclick="showScreen('screen-setup')" class="btn-large btn-danger" style="margin-top: 20px;">Voltar ao Menu Principal</button>
   </div>
 
   <!-- TELA 2: LOBBY ONLINE -->
