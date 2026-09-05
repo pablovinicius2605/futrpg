@@ -60,9 +60,50 @@ function saveShield(teamId, logo) {
 
 function applySavedShields(leagues) {
   leagues.forEach(league => league.teams.forEach(teamData => {
-    if (savedShields[teamData.id]) teamData.logo = savedShields[teamData.id];
+    if (savedShields[teamData.id]) {
+      teamData.escudo = savedShields[teamData.id];
+      teamData.logo = savedShields[teamData.id];
+    } else if (shieldsByTeamId[teamData.id] && !teamData.escudo) {
+      teamData.escudo = shieldsByTeamId[teamData.id];
+      teamData.logo = teamData.escudo;
+    }
   }));
   return leagues;
+}
+
+const shieldsByTeamId = {
+  cor: './serie_a/corinthians.png',
+  fla: './serie_a/flamengo.png',
+  pal: './serie_a/palmeiras.png',
+  san: './serie_a/santos.png',
+  bot: './serie_a/botafogo.png',
+  cam: './serie_a/atlmineiro.png',
+  vas: './serie_a/vasco.png',
+  flu: './serie_a/fluminense.png',
+  mir: './serie_a/mirassol.png',
+  ath: './serie_a/atlparanaense.png',
+  bah: './serie_a/bahia.png',
+  cha: './serie_a/chapecoense.png',
+  cfc: './serie_a/coritiba.png',
+  cru: './serie_a/cruzeiro.png',
+  gre: './serie_a/gremio.png',
+  int: './serie_a/internacional.png',
+  rbb: './serie_a/rbbragantino.png',
+  sao: './serie_a/saopaulo.png',
+  vic: './serie_a/vitoria.png',
+  rem: './serie_a/remo.png'
+};
+
+function hideBrokenImage(event) {
+  event.currentTarget.style.display = 'none';
+}
+
+function setTeamImage(elementId, teamData) {
+  const image = document.getElementById(elementId);
+  if (!image) return;
+  image.src = teamData.escudo || teamData.logo;
+  image.alt = teamData.nome || teamData.name || '';
+  image.onerror = hideBrokenImage;
 }
 
 const timesPrincipais2026 = [
@@ -139,7 +180,8 @@ function createPrincipalTeam(teamData) {
     color: teamData.cor,
     secondaryColor: teamData.secundaria,
     formation: '4-3-3',
-    logo: savedShields[teamData.id] || createTeamLogo(teamData.cor),
+    escudo: savedShields[teamData.id] || shieldsByTeamId[teamData.id] || createTeamLogo(teamData.cor),
+    logo: savedShields[teamData.id] || shieldsByTeamId[teamData.id] || createTeamLogo(teamData.cor),
     jogadores: roster,
     roster,
     players: roster.map(player => player.nome),
@@ -163,6 +205,7 @@ function createManagedTeam(name, color, secondaryColor, formation) {
     color,
     secondaryColor,
     formation,
+    escudo: createTeamLogo(color),
     logo: createTeamLogo(color),
     players,
     roster: players.map((player, index) => ({ nome: player, posicao: index === 0 ? 'GOL' : 'LINHA' }))
@@ -389,7 +432,7 @@ function renderTeamCatalog() {
   count.innerText = `${teams.length} time${teams.length === 1 ? '' : 's'}`;
   catalog.innerHTML = teams.map(teamData => `
     <div class="team-catalog-item" style="--team-primary:${escapeHtml(teamData.color)}">
-      <img src="${escapeHtml(teamData.logo)}" alt="Escudo de ${escapeHtml(teamData.name)}" />
+      <img src="${escapeHtml(teamData.escudo || teamData.logo)}" alt="${escapeHtml(teamData.nome || teamData.name)}" class="escudo-time" onerror="this.style.display='none'" style="width:36px;height:36px;object-fit:contain" />
       <div class="team-catalog-info"><strong>${escapeHtml(teamData.name)}</strong><small>${escapeHtml(teamData.leagueName)} · ${getTeamRoster(teamData).length} jogadores</small></div>
       <div class="team-catalog-actions">
         <button class="btn-secondary" onclick="editManagedTeam('${teamData.id}')">Editar</button>
@@ -416,6 +459,7 @@ function resetTeamForm() {
   document.getElementById('managerLogoUrl').value = '';
   managerLogoData = '';
   document.getElementById('managerLogoPreview').src = createTeamLogo('#00b37e');
+  document.getElementById('managerLogoPreview').onerror = hideBrokenImage;
   const editor = document.getElementById('rosterEditor');
   editor.innerHTML = '';
   ['Goleiro', 'Defensor', 'Meia', 'Atacante'].forEach((nome, index) => addRosterRow({ nome, posicao: index === 0 ? 'GOL' : 'LINHA' }));
@@ -434,6 +478,7 @@ function editManagedTeam(teamId) {
   document.getElementById('managerLogoUrl').value = teamData.logo.startsWith('data:') ? '' : teamData.logo;
   managerLogoData = teamData.logo.startsWith('data:') ? teamData.logo : '';
   document.getElementById('managerLogoPreview').src = teamData.logo;
+  document.getElementById('managerLogoPreview').onerror = hideBrokenImage;
   document.getElementById('rosterEditor').innerHTML = '';
   getTeamRoster(teamData).forEach(addRosterRow);
   document.getElementById('managerTeamName').focus();
@@ -453,7 +498,7 @@ function saveManagedTeam() {
   }
   const editingId = document.getElementById('editingTeamId').value;
   const logo = document.getElementById('managerLogoUrl').value.trim() || managerLogoData || createTeamLogo(document.getElementById('managerPrimaryColor').value);
-  const teamData = { id: editingId || `team-${Date.now()}`, name, color: document.getElementById('managerPrimaryColor').value, secondaryColor: document.getElementById('managerSecondaryColor').value, formation: '4-4-2', logo, roster, players: roster.map(player => player.nome) };
+  const teamData = { id: editingId || `team-${Date.now()}`, name, color: document.getElementById('managerPrimaryColor').value, secondaryColor: document.getElementById('managerSecondaryColor').value, formation: '4-4-2', escudo: logo, logo, roster, players: roster.map(player => player.nome) };
   const previousLeague = leagueData.find(item => item.teams.some(itemTeam => itemTeam.id === teamData.id));
   if (previousLeague) previousLeague.teams = previousLeague.teams.filter(itemTeam => itemTeam.id !== teamData.id);
   league.teams.push(teamData);
@@ -482,6 +527,7 @@ function handleManagerLogoUpload(event) {
     const editingId = document.getElementById('editingTeamId').value;
     if (editingId) saveShield(editingId, managerLogoData);
     document.getElementById('managerLogoPreview').src = managerLogoData;
+    document.getElementById('managerLogoPreview').onerror = hideBrokenImage;
   };
   reader.readAsDataURL(file);
 }
@@ -677,7 +723,7 @@ if (socket) {
     document.getElementById('lobby-room-code-display').innerText = onlineRoomId;
     
     document.getElementById('lobbyHostName').innerText = onlineHostTeam.name;
-    document.getElementById('lobbyHostLogo').src = onlineHostTeam.logo;
+    setTeamImage('lobbyHostLogo', onlineHostTeam);
     
     document.getElementById('btn-copy-link').classList.remove('hidden');
     document.getElementById('lobby-status-text').innerText = "Aguardando o adversário (Guest) se conectar...";
@@ -687,7 +733,7 @@ if (socket) {
     onlineGuestTeam = data.guestTeam;
     document.getElementById('lobbyGuestName').innerText = onlineGuestTeam.name;
     document.getElementById('lobbyGuestName').style.color = "#f4f4f5";
-    document.getElementById('lobbyGuestLogo').src = onlineGuestTeam.logo;
+    setTeamImage('lobbyGuestLogo', onlineGuestTeam);
     document.getElementById('lobbyGuestLogo').classList.remove('hidden');
     document.getElementById('lobbyGuestBadge').classList.remove('hidden');
     
@@ -706,13 +752,13 @@ if (socket) {
     document.getElementById('lobby-room-code-display').innerText = onlineRoomId;
     
     document.getElementById('lobbyHostName').innerText = onlineHostTeam.name;
-    document.getElementById('lobbyHostLogo').src = onlineHostTeam.logo;
+    setTeamImage('lobbyHostLogo', onlineHostTeam);
     
     document.getElementById('btn-copy-link').classList.add('hidden');
     
     document.getElementById('lobbyGuestName').innerText = onlineGuestTeam.name;
     document.getElementById('lobbyGuestName').style.color = "#f4f4f5";
-    document.getElementById('lobbyGuestLogo').src = onlineGuestTeam.logo;
+    setTeamImage('lobbyGuestLogo', onlineGuestTeam);
     document.getElementById('lobbyGuestLogo').classList.remove('hidden');
     document.getElementById('lobbyGuestBadge').classList.remove('hidden');
     
@@ -882,16 +928,16 @@ function startEngine(isOnlineReady) {
   
   document.getElementById("hudHomeName").innerText = teams.A.name;
   document.getElementById("hudHomeForm").innerText = teams.A.formation;
-  document.getElementById("hudHomeLogo").src = teams.A.logo;
+  setTeamImage('hudHomeLogo', teams.A);
   
   document.getElementById("hudAwayName").innerText = teams.B.name;
   document.getElementById("hudAwayForm").innerText = teams.B.formation;
-  document.getElementById("hudAwayLogo").src = teams.B.logo;
+  setTeamImage('hudAwayLogo', teams.B);
   
   document.getElementById("penHomeName").innerText = teams.A.name;
-  document.getElementById("penHomeLogo").src = teams.A.logo;
+  setTeamImage('penHomeLogo', teams.A);
   document.getElementById("penAwayName").innerText = teams.B.name;
-  document.getElementById("penAwayLogo").src = teams.B.logo;
+  setTeamImage('penAwayLogo', teams.B);
   
   isExtraAction = false;
   matchState = {
@@ -1506,11 +1552,11 @@ function showSummaryScreen() {
   const teams = getActiveTeams();
   
   document.getElementById('sumTeamA_Name').innerText = teams.A.name;
-  document.getElementById('sumTeamA_Logo').src = teams.A.logo;
+  setTeamImage('sumTeamA_Logo', teams.A);
   document.getElementById('sumScoreA').innerText = matchState.scoreA;
   
   document.getElementById('sumTeamB_Name').innerText = teams.B.name;
-  document.getElementById('sumTeamB_Logo').src = teams.B.logo;
+  setTeamImage('sumTeamB_Logo', teams.B);
   document.getElementById('sumScoreB').innerText = matchState.scoreB;
   
   const goalsA_HTML = matchState.goalsA.map(g => `<div>⚽ ${g.player} <span style="color:var(--gold); font-size:0.85rem;">(${g.time})</span></div>`).join('');
