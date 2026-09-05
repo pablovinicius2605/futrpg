@@ -226,6 +226,34 @@ const premierLeague2026 = [
   createLeagueTeam('avl', 'Aston Villa', 'Premier League', 'Médio', '', 'Zion Suzuki|Goleiro;Marco Bizot|Goleiro;Taylor Harwood-Bellis|Zagueiro;Pau Torres|Zagueiro;Modou Kéba Cissé|Zagueiro;Victor Lindelöf|Zagueiro;Tyrone Mings|Zagueiro;Ian Maatsen|Lateral;Matteo Ruggeri|Lateral;Matty Cash|Lateral;Aaron Wan-Bissaka|Lateral;Amadou Onana|Volante;Boubacar Kamara|Volante;Lamare Bogarde|Volante;João Gomes|Meia;John McGinn|Meia;Leon Goretzka|Meia;Ross Barkley|Meia;Johan Manzambi|Meia;Emiliano Buendía|Meia;Alejandro Garnacho|Atacante;George Hemmings|Atacante;Ibrahim Mbaye|Atacante;Alysson|Atacante;Nicolas Jackson|Atacante;Tammy Abraham|Atacante;Brian Madjo|Atacante')
 ];
 
+const ligaEspanhola2026 = [
+  createLeagueTeam('rma', 'Real Madrid', 'LaLiga', 'Difícil', '', 'Thibaut Courtois|Goleiro;Andriy Lunin|Goleiro;Dean Huijsen|Zagueiro;Ibrahima Konaté|Zagueiro;Raúl Asencio|Zagueiro;Éder Militão|Zagueiro;Antonio Rüdiger|Zagueiro;Marc Cucurella|Lateral;Álvaro Carreras|Lateral;Ferland Mendy|Lateral;Trent Alexander-Arnold|Lateral;Denzel Dumfries|Lateral;Aurélien Tchouaméni|Volante;Federico Valverde|Meia;Eduardo Camavinga|Meia;Jude Bellingham|Meia;Arda Güler|Meia;Bernardo Silva|Meia;Vinicius Junior|Atacante;Yan Diomande|Atacante;Rodrygo|Atacante;Brahim Díaz|Atacante;Kylian Mbappé|Atacante;Endrick|Atacante;Carlos Espí|Atacante'),
+  createLeagueTeam('bar', 'Barcelona', 'LaLiga', 'Difícil', '', 'Joan García|Goleiro;Dominik Livakovic|Goleiro;Wojciech Szczesny|Goleiro;Pau Cubarsí|Zagueiro;Eric García|Zagueiro;Gerard Martín|Zagueiro;Andreas Christensen|Zagueiro;Alejandro Balde|Lateral;Jules Koundé|Lateral;João Cancelo|Lateral;Xavi Espart|Lateral;Rodri|Volante;Marc Bernal|Volante;Pedri|Meia;Frenkie de Jong|Meia;Gavi|Meia;Brian Fariñas|Meia;Fermín López|Meia;Dani Olmo|Meia;Anthony Gordon|Atacante;Raphinha|Atacante;Jesse Bisiwu|Atacante;Lamine Yamal|Atacante;Karim Adeyemi|Atacante;Roony Bardghji|Atacante;Gabriel Jesus|Atacante;Hamza Abdelkarim|Atacante'),
+  createLeagueTeam('atm', 'Atlético de Madrid', 'LaLiga', 'Difícil', '', 'Jan Oblak|Goleiro;Juan Musso|Goleiro;Salvi Esquivel|Goleiro;Cristian Romero|Zagueiro;Dávid Hancko|Zagueiro;Marc Pubill|Zagueiro;Robin Le Normand|Zagueiro;Jorge Domínguez|Zagueiro;Dani Martinez|Zagueiro;Alejandro Grimaldo|Lateral;Marcos Llorente|Lateral;Morten Hjulmand|Volante;Pablo Barrios|Meia;Rodrigo Mendoza|Meia;Johnny Cardoso|Meia;Obed Vargas|Meia;Koke|Meia;Kang-in Lee|Meia;Álex Baena|Atacante;Ademola Lookman|Atacante;Arnau Ortiz|Atacante;Giuliano Simeone|Atacante;Julián Alvarez|Atacante;Jonathan David|Atacante;Alexander Sørloth|Atacante')
+];
+
+const bundesliga2026 = [
+  createLeagueTeam('bay', 'Bayern', 'Bundesliga', 'Difícil', '', 'Jonas Urbig|Goleiro;Manuel Neuer|Goleiro;Sven Ulreich|Goleiro;Dayot Upamecano|Zagueiro;Jonathan Tah|Zagueiro;Min-jae Kim|Zagueiro;Hiroki Ito|Zagueiro;Nathaniel Brown|Lateral;Alphonso Davies|Lateral;Josip Stanisic|Lateral;Konrad Laimer|Lateral;Sacha Boey|Lateral;Aleksandar Pavlovic|Volante;Joshua Kimmich|Volante;Tom Bischof|Meia;Jamal Musiala|Meia;Lennart Karl|Meia;Ismael Saibari|Meia;Luis Díaz|Atacante;Michael Olise|Atacante;Serge Gnabry|Atacante;Harry Kane|Atacante'),
+  createLeagueTeam('bvb', 'Borussia Dortmund', 'Bundesliga', 'Difícil', '', 'Gregor Kobel|Goleiro;Alexander Meyer|Goleiro;Patrick Drewes|Goleiro;Silas Ostrzinski|Goleiro;Nico Schlotterbeck|Zagueiro;Joane Gadou|Zagueiro;Waldemar Anton|Zagueiro;Luca Reggiani|Zagueiro;Ramy Bensebaini|Zagueiro;Emre Can|Zagueiro;Filippo Mane|Zagueiro;Daniel Svensson|Lateral;Kauã Prates|Lateral;Julian Ryerson|Lateral;Felix Nmecha|Meia;Jobe Bellingham|Meia;Joey Veerman|Meia;Carney Chukwuemeka|Meia;Marcel Sabitzer|Meia;Ethan Nwaneri|Atacante;Konstantinos Karetsas|Atacante;Giannis Konstantelias|Atacante;Justin Lerma|Atacante;Maximilian Beier|Atacante;Serhou Guirassy|Atacante;Fábio Silva|Atacante'),
+  createLeagueTeam('rbl', 'RB Leipzig', 'Bundesliga', 'Médio', '', 'Maarten Vandevoordt|Goleiro;Ørjan Nyland|Goleiro;Leopold Zingerle|Goleiro;Castello Lukeba|Zagueiro;Maxime Estève|Zagueiro;Abdoul Koné|Zagueiro;Willi Orbán|Zagueiro;Lukas Klostermann|Zagueiro;David Raum|Lateral;Max Finkgräfe|Lateral;Ridle Baku|Lateral;Benjamin Henrichs|Lateral;Nicolas Seiwald|Volante;Neil El Aynaoui|Meia;Assan Ouédraogo|Meia;Rocco Reitz|Meia;Ezechiel Banzuzi|Meia;Christoph Baumgartner|Meia;Brajan Gruda|Atacante;Andrija Maksimovic|Atacante;Antonio Nusa|Atacante;Suleman Sani|Atacante;Tidiam Gomis|Atacante;Johan Bakayoko|Atacante;Rômulo|Atacante;Christopher Nkunku|Atacante;Marc Guiu|Atacante'),
+  createLeagueTeam('b04', 'Bayer Leverkusen', 'Bundesliga', 'Médio', '', 'Mark Flekken|Goleiro;Janis Blaswich|Goleiro;Niklas Lomb|Goleiro;Jarell Quansah|Zagueiro;Edmond Tapsoba|Zagueiro;Loïc Badé|Zagueiro;Facundo Medina|Zagueiro;Tim Oermann|Zagueiro;Miguel Gutiérrez|Lateral;Guéla Doué|Lateral;Lucas Vázquez|Lateral;Equi Fernández|Volante;Kennet Eichhorn|Volante;Robert Andrich|Volante;Aleix García|Meia;Ibrahim Maza|Meia;Malik Tillman|Meia;Jonas Hofmann|Meia;Afonso Moreira|Atacante;Eliesse Ben Seghir|Atacante;Martin Terrier|Atacante;Moussa Diaby|Atacante;Nathan Tella|Atacante;Montrell Culbreath|Atacante;Christian Kofane|Atacante;Patrik Schick|Atacante;Victor Boniface|Atacante;Ndjicoura Bomba|Atacante')
+];
+
+const ligue1_2026 = [
+  createLeagueTeam('psg', 'Paris Saint-Germain', 'Ligue 1', 'Difícil', '', 'Matvey Safonov|Goleiro;Lucas Chevalier|Goleiro;Alessandro Longoni|Goleiro;Willian Pacho|Zagueiro;Ilya Zabarnyi|Zagueiro;Marquinhos|Zagueiro;Lucas Beraldo|Zagueiro;Nuno Mendes|Lateral;Lucas Hernández|Lateral;Lucas Digne|Lateral;Achraf Hakimi|Lateral;Vitinha|Volante;João Neves|Meia;Warren Zaïre-Emery|Meia;Senny Mayulu|Meia;Fabián Ruiz|Meia;Dro Fernández|Meia;Khvicha Kvaratskhelia|Atacante;Mika Godts|Atacante;Quentin Ndjantou|Atacante;Désiré Doué|Atacante;Maghnes Akliouche|Atacante;Ousmane Dembélé|Atacante;Ferran Torres|Atacante')
+];
+
+const ligaPortugal2026 = [
+  createLeagueTeam('por', 'FC Porto', 'Liga Portugal', 'Difícil', '', 'Diogo Costa|Goleiro;João Afonso|Goleiro;Cláudio Ramos|Goleiro;João Costa|Goleiro;Jakub Kiwior|Zagueiro;Nehuén Pérez|Zagueiro;Jan Bednarek|Zagueiro;Dominik Prpić|Zagueiro;Souza|Lateral;Francisco Moura|Lateral;Zaidu Sanusi|Lateral;Alberto Costa|Lateral;Martim Fernandes|Lateral;Alan Varela|Volante;Pablo Rosario|Volante;Victor Froholdt|Meia;Seko Fofana|Meia;In-beom Hwang|Meia;Vasco Sousa|Meia;Gabri Veiga|Meia;Oskar Pietuszewski|Atacante;Borja Sainz|Atacante;William Gomes|Atacante;Pepê|Atacante;Gabriel Mec|Atacante;Samu Aghehowa|Atacante;Santiago Gimenez|Atacante;André Silva|Atacante'),
+  createLeagueTeam('spo', 'Sporting CP', 'Liga Portugal', 'Difícil', '', 'Rui Silva|Goleiro;Kaique Pereira|Goleiro;Diego Callai|Goleiro;Gonçalo Inácio|Zagueiro;Zeno Debast|Zagueiro;Eduardo Quaresma|Zagueiro;Ibrahima Ba|Zagueiro;Maxi Araújo|Lateral;Moncef Zekri|Lateral;Nuno Santos|Lateral;Rodrigo Dias|Lateral;Iván Fresneda|Lateral;Georgios Vagiannidis|Lateral;Salvador Blopa|Lateral;Sergi Altimira|Volante;Silas Andersen|Volante;Issa Doumbia|Meia;João Simões|Meia;Pedro Lima|Meia;Sotiris Alexandropoulos|Meia;Rodrigo Zalazar|Meia;Nestory Irankunda|Atacante;Flávio Gonçalves|Atacante;Jesse Derry|Atacante;Geny Catamo|Atacante;Luís Guilherme|Atacante;Luis Suárez|Atacante;Fotis Ioannidis|Atacante;Rafael Nel|Atacante'),
+  createLeagueTeam('ben', 'SL Benfica', 'Liga Portugal', 'Difícil', '', 'Anatoliy Trubin|Goleiro;Samuel Soares|Goleiro;Tomás Araújo|Zagueiro;Alessandro Circati|Zagueiro;Clément Lenglet|Zagueiro;Gabriel Índio|Zagueiro;Souffian El Karouani|Lateral;Samuel Dahl|Lateral;José Neto|Lateral;Alexander Bah|Lateral;Daniel Banjaqui|Lateral;João Palhinha|Volante;Enzo Barrenechea|Volante;Manu Silva|Volante;Leandro Barreiro|Meia;Fredrik Aursnes|Meia;Georgiy Sudakov|Meia;Claudio Echeverri|Meia;Andreas Schjelderup|Atacante;Jakub Kamiński|Atacante;Bruma|Atacante;Gianluca Prestianni|Atacante;Dodi Lukébakio|Atacante;Rafa Silva|Atacante;Vangelis Pavlidis|Atacante;Jhon Durán|Atacante;Anísio Cabral|Atacante')
+];
+
+const serieAItalia2026 = [
+  createLeagueTeam('int_it', 'Inter de Milão', 'Serie A Italia', 'Difícil', '', 'Josep Martínez|Goleiro;Ivan Provedel|Goleiro;Raffaele Di Gennaro|Goleiro;Alessandro Bastoni|Zagueiro;Yann Bisseck|Zagueiro;Manuel Akanji|Zagueiro;John Stones|Zagueiro;Benjamin Pavard|Zagueiro;Federico Dimarco|Lateral;Carlos Augusto|Lateral;Djed Spence|Lateral;Aleksandar Stanković|Volante;Hakan Çalhanoğlu|Volante;Nicolò Barella|Meia;Petar Sučić|Meia;Curtis Jones|Meia;Piotr Zielinski|Meia;Henrikh Mkhitaryan|Meia;Luis Henrique|Atacante;Andy Diouf|Atacante;Lautaro Martínez|Atacante;Marcus Thuram|Atacante;Pio Esposito|Atacante;Ange-Yoan Bonny|Atacante'),
+  createLeagueTeam('juv', 'Juventus', 'Serie A Italia', 'Difícil', '', 'Guglielmo Vicario|Goleiro;Kamil Grabara|Goleiro;Carlo Pinsoglio|Goleiro;Bremer|Zagueiro;Pierre Kalulu|Zagueiro;Lloyd Kelly|Zagueiro;Jhon Lucumí|Zagueiro;Federico Gatti|Zagueiro;Daniele Rugani|Zagueiro;Andrea Cambiaso|Lateral;Juan Cabal|Lateral;Zeki Çelik|Lateral;Manuel Locatelli|Volante;Teun Koopmeiners|Volante;Khéphren Thuram|Meia;Weston McKennie|Meia;Pape Matar Sarr|Meia;Douglas Luiz|Meia;Kenan Yıldız|Atacante;Kerim Alajbegovic|Atacante;Nico González|Atacante;Jérémie Boga|Atacante;Francisco Conceição|Atacante;Edon Zhegrova|Atacante;Nick Woltemade|Atacante;Randal Kolo Muani|Atacante;Jeff Ekhator|Atacante;Arkadiusz Milik|Atacante')
+];
+
 function createPrincipalTeam(teamData) {
   const roster = teamData.jogadores.map(([nome, posicao]) => ({ nome, posicao }));
   return {
@@ -255,7 +283,12 @@ function getDefaultLeagues() {
     },
     { id: 'liga-argentina', name: 'Liga Argentina', teams: ligaArgentina2026 },
     { id: 'liga-uruguaia', name: 'Liga Uruguaia', teams: ligaUruguaia2026 },
-    { id: 'premier-league', name: 'Premier League', teams: premierLeague2026 }
+    { id: 'premier-league', name: 'Premier League', teams: premierLeague2026 },
+    { id: 'laliga', name: 'LaLiga', teams: ligaEspanhola2026 },
+    { id: 'bundesliga', name: 'Bundesliga', teams: bundesliga2026 },
+    { id: 'ligue-1', name: 'Ligue 1', teams: ligue1_2026 },
+    { id: 'liga-portugal', name: 'Liga Portugal', teams: ligaPortugal2026 },
+    { id: 'serie-a-italia', name: 'Serie A Italia', teams: serieAItalia2026 }
   ];
 }
 
@@ -294,7 +327,16 @@ function loadLeagueData() {
         localStorage.setItem(leaguesStorageKey, JSON.stringify(migrated));
         return migrated;
       }
-      return applySavedShields(saved);
+      const defaultLeagues = getDefaultLeagues();
+      const mergedLeagues = [...saved];
+      defaultLeagues.forEach(defaultLeague => {
+        if (!mergedLeagues.some(league => league.id === defaultLeague.id)) {
+          mergedLeagues.push(defaultLeague);
+        }
+      });
+      applySavedShields(mergedLeagues);
+      localStorage.setItem(leaguesStorageKey, JSON.stringify(mergedLeagues));
+      return mergedLeagues;
     }
   } catch (error) {
     console.warn('Não foi possível carregar as ligas salvas.', error);
