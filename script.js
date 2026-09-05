@@ -36,8 +36,8 @@ const defaultOpponent = {
 };
 
 const leaguesStorageKey = 'futrpg_v1_leagues';
-const principalTeamsVersionKey = 'futrpg_principal_teams_2026-09-final';
-const principalTeamsVersion = '2026-09-final';
+const principalTeamsVersionKey = 'futrpg_leagues_2026-09-final';
+const principalTeamsVersion = '2026-09-final-international';
 const shieldsStorageKey = 'futrpg_escudos';
 let leagueData;
 let managerLogoData = '';
@@ -169,6 +169,52 @@ const timesPrincipais2026 = [
   ] }
 ];
 
+function createLeagueTeam(id, name, league, difficulty, shield, rosterText) {
+  const jogadores = rosterText.split(';').map(player => {
+    const [nome, posicao] = player.split('|');
+    return { nome, posicao };
+  });
+  return {
+    id,
+    nome: name,
+    name,
+    liga: league,
+    nivelIa: difficulty,
+    escudo: shield,
+    logo: shield,
+    formation: '4-3-3',
+    jogadores,
+    roster: jogadores,
+    players: jogadores.map(player => player.nome)
+  };
+}
+
+const ligaArgentina2026 = [
+  createLeagueTeam('boc', 'Boca Juniors', 'Liga Argentina', 'Difícil', './liga_argentina/boca.png', 'Álvaro Montero|Goleiro;Leandro Brey|Goleiro;Agustín Marchesín|Goleiro;Lautaro Di Lollo|Zagueiro;Ayrton Costa|Zagueiro;Marco Pellegrino|Zagueiro;Lautaro Blanco|Lateral;Malcom Braida|Lateral;Leandro Lozano|Lateral;Milton Delgado|Volante;Santiago Ascacíbar|Volante;Leandro Paredes|Volante;Tomás Belmonte|Volante;Tomás Aranda|Meia;Carlos Palacios|Meia;Kevin Zenón|Atacante;Alan Velasco|Atacante;Sebastián Villa|Atacante;Miguel Merentiel|Atacante;Adam Bareiro|Atacante;Milton Giménez|Atacante;Enner Valencia|Atacante'),
+  createLeagueTeam('riv', 'River Plate', 'Liga Argentina', 'Difícil', './liga_argentina/river.png', 'Jeremías Ledesma|Goleiro;Ezequiel Centurión|Goleiro;Santiago Beltrán|Goleiro;Lucas Martínez Quarta|Zagueiro;Lautaro Rivero|Zagueiro;Nicolás Otamendi|Zagueiro;Francisco Ortega|Lateral;Marcos Acuña|Lateral;Gonzalo Montiel|Lateral;Aníbal Moreno|Volante;Fausto Vera|Volante;Mauro Arambarri|Meia;Thiago Almada|Meia;Tiago Serrago|Meia;Tomás Galván|Meia;Ángel Correa|Atacante;Lucas Beltrán|Atacante;Sebastián Driussi|Atacante;Rafael Santos Borré|Atacante'),
+  createLeagueTeam('rac', 'Racing Club', 'Liga Argentina', 'Médio', './liga_argentina/racing.png', 'Gabriel Arias|Goleiro;Facundo Cambeses|Goleiro;Marco Di Cesare|Zagueiro;Agustín Basso|Zagueiro;Gabriel Rojas|Lateral;Gaston Martirena|Lateral;Santiago Sosa|Volante;Bruno Zuculini|Volante;Agustín Almendra|Meia;Juan Fernando Quintero|Meia;Santiago Solari|Atacante;Luciano Vietto|Atacante;Adrián Martínez|Atacante;Lautaro Díaz|Atacante;Elías Torres|Atacante'),
+  createLeagueTeam('ind', 'Independiente', 'Liga Argentina', 'Médio', './liga_argentina/independiente.png', 'Rodrigo Rey|Goleiro;Kevin Lomónaco|Zagueiro;Joaquín Laso|Zagueiro;Damián Pérez|Lateral;Federico Vera|Lateral;Iván Marcone|Volante;Felipe Loyola|Meia;Santiago López|Atacante;Gabriel Ávalos|Atacante;Ignacio Maestro Puch|Atacante;Matías Abaldo|Atacante'),
+  createLeagueTeam('slor', 'San Lorenzo', 'Liga Argentina', 'Médio', './liga_argentina/sanlorenzo.png', 'Gastón Gómez|Goleiro;Jhohan Romaña|Zagueiro;Gastón Campi|Zagueiro;Malcom Braida|Lateral;Elián Irala|Volante;Gonzalo Ábrego|Volante;Iker Muniain|Meia;Nahuel Bustos|Atacante;Alexis Cuello|Atacante;Nahuel Barrios|Atacante'),
+  createLeagueTeam('est', 'Estudiantes', 'Liga Argentina', 'Médio', './liga_argentina/estudiantes.png', 'Fernando Muslera|Goleiro;Matías Mansilla|Goleiro;Luciano Lollo|Zagueiro;Federico Fernández|Zagueiro;Tomás Palacios|Zagueiro;Santiago Ascacíbar|Volante;Enzo Pérez|Volante;José Sosa|Meia;Tiago Palacios|Atacante;Guido Carrillo|Atacante;Adolfo Gaich|Atacante;Joaquín Correa|Atacante'),
+  createLeagueTeam('ros', 'Rosario Central', 'Liga Argentina', 'Médio', './liga_argentina/rosariocentral.png', 'Jorge Broun|Goleiro;Carlos Quintana|Zagueiro;Facundo Mallo|Zagueiro;Jaminton Campaz|Meia;Ignacio Malcorra|Meia;Marco Ruben|Atacante;Enzo Copetti|Atacante'),
+  createLeagueTeam('tal', 'Talleres', 'Liga Argentina', 'Médio', './liga_argentina/talleres.png', 'Guido Herrera|Goleiro;Matías Catalán|Zagueiro;Gastón Benavídez|Lateral;Juan Portilla|Volante;Rubén Botta|Meia;Federico Girotti|Atacante;Sebastián Palacios|Atacante'),
+  createLeagueTeam('lan', 'Lanús', 'Liga Argentina', 'Médio', './liga_argentina/lanus.png', 'Nahuel Losada|Goleiro;Ezequiel Muñoz|Zagueiro;Carlos Izquierdoz|Zagueiro;Raúl Loaiza|Volante;Marcelino Moreno|Meia;Eduardo Salvio|Atacante;Walter Bou|Atacante'),
+  createLeagueTeam('vel', 'Vélez Sarsfield', 'Liga Argentina', 'Médio', './liga_argentina/velez.png', 'Tomás Marchiori|Goleiro;Emanuel Mammana|Zagueiro;Valentin Gómez|Zagueiro;Claudio Aquino|Meia;Francisco Pizzini|Atacante;Braian Romero|Atacante')
+];
+
+const ligaUruguaia2026 = [
+  createLeagueTeam('pen', 'Peñarol', 'Liga Uruguaia', 'Médio', './liga_uruguaia/penarol.png', 'Washington Aguerre|Goleiro;Sebastián Britos|Goleiro;Nahuel Herrera|Zagueiro;Lucas Ferreira|Zagueiro;Mauricio Lemos|Zagueiro;Diego Laxalt|Lateral;Maximiliano Olivera|Lateral;Lucas Hernández|Lateral;Eric Remedi|Volante;Jesús Trindade|Volante;Nicolás Fernández|Meia;Eduardo Darias|Meia;Leonardo Fernández|Meia;Luis Angulo|Atacante;Matías Arezo|Atacante;Jonathan Rodríguez|Atacante;Facundo Batista|Atacante'),
+  createLeagueTeam('nac', 'Nacional', 'Liga Uruguaia', 'Médio', './liga_uruguaia/nacional.png', 'Luis Mejía|Goleiro;Ignacio Suárez|Goleiro;Alexis Martín Arias|Goleiro;Francisco Calvo|Zagueiro;Agustín Rogel|Zagueiro;Sebastián Coates|Zagueiro;Camilo Cándido|Lateral;Gastón Martirena|Lateral;Emiliano Ancheta|Lateral;Bruno Zuculini|Volante;Luciano Boggio|Meia;Santiago Silva|Meia;Rubén Botta|Meia;Juan Cruz de los Santos|Atacante;Tomás Verón Lupi|Atacante;Maxi Gómez|Atacante;Maximiliano Silvera|Atacante'),
+  createLeagueTeam('def', 'Defensor Sporting', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/defensor.png', 'Kevin Dawson|Goleiro;Guillermo De los Santos|Zagueiro;Renzo Giampaoli|Zagueiro;Facundo Bernal|Volante;Joaquín Valiente|Meia;Claudio Spinelli|Atacante'),
+  createLeagueTeam('dan', 'Danubio', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/danubio.png', 'Mauro Goicoechea|Goleiro;Matías Fracchia|Zagueiro;Santiago Romero|Volante;Ignacio Pintos|Meia;Sebastián Fernández|Atacante'),
+  createLeagueTeam('liv', 'Liverpool FC', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/liverpool.png', 'Sebastián Lentinelly|Goleiro;Enzo Martínez|Zagueiro;Edouard Rosso|Lateral;Diego García|Meia;Luciano Rodríguez|Atacante'),
+  createLeagueTeam('bos', 'Boston River', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/bostonriver.png', 'Bruno Antúnez|Goleiro;Emanuel Beltrán|Lateral;Gastón Pérez|Volante;Emiliano Gómez|Atacante'),
+  createLeagueTeam('wan', 'Wanderers', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/wanderers.png', 'Jhonony Da Silva|Goleiro;Emiliano García|Zagueiro;Gonzalo Freitas|Volante;Matías Fonseca|Atacante'),
+  createLeagueTeam('pro', 'Progreso', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/progreso.png', 'Nahuel Suárez|Goleiro;Esteban González|Zagueiro;Adrian Colombia|Meia;Franco López|Atacante'),
+  createLeagueTeam('mco', 'Montevideo City Torque', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/montevideocity.png', 'Francisco Tinaglini|Goleiro;Joaquín Pereyra|Zagueiro;Franco Catarozzi|Volante;Lucas Acosta|Atacante'),
+  createLeagueTeam('rac_u', 'Racing Montevideo', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/racing.png', 'Rodrigo Odriozola|Goleiro;Hugo Magallanes|Zagueiro;Lucas Rodríguez|Meia;Dylan Nandín|Atacante')
+];
+
 function createPrincipalTeam(teamData) {
   const roster = teamData.jogadores.map(([nome, posicao]) => ({ nome, posicao }));
   return {
@@ -190,11 +236,15 @@ function createPrincipalTeam(teamData) {
 }
 
 function getDefaultLeagues() {
-  return [{
-    id: 'brasileirao-serie-a',
-    name: 'Brasileirão Série A',
-    teams: timesPrincipais2026.map(createPrincipalTeam)
-  }];
+  return [
+    {
+      id: 'brasileirao-serie-a',
+      name: 'Brasileirão Série A',
+      teams: timesPrincipais2026.map(createPrincipalTeam)
+    },
+    { id: 'liga-argentina', name: 'Liga Argentina', teams: ligaArgentina2026 },
+    { id: 'liga-uruguaia', name: 'Liga Uruguaia', teams: ligaUruguaia2026 }
+  ];
 }
 
 function createManagedTeam(name, color, secondaryColor, formation) {
@@ -221,13 +271,14 @@ function loadLeagueData() {
     const saved = JSON.parse(localStorage.getItem(leaguesStorageKey));
     if (Array.isArray(saved) && saved.length) {
       if (localStorage.getItem(principalTeamsVersionKey) !== principalTeamsVersion) {
-        const principalLeague = getDefaultLeagues()[0];
-        const customLeagues = saved.filter(league => league.id !== principalLeague.id && league.name !== 'Brasileirão Série A');
+        const defaultLeagues = getDefaultLeagues();
+        const principalLeague = defaultLeagues[0];
+        const customLeagues = saved.filter(league => !defaultLeagues.some(defaultLeague => defaultLeague.id === league.id) && league.name !== 'Brasileirão Série A');
         const legacyLeague = saved.find(league => league.id === principalLeague.id || league.name === 'Brasileirão Série A');
         const legacyCustomTeams = legacyLeague?.teams?.filter(teamData => !['fla', 'pal', 'cru', 'cor', 'vas', 'bot', 'flu', 'cam', 'sao', 'san', 'bah', 'int', 'fortaleza'].includes(teamData.id)) || [];
         principalLeague.teams.push(...legacyCustomTeams.filter(teamData => !principalLeague.teams.some(current => current.id === teamData.id)));
         localStorage.setItem(principalTeamsVersionKey, principalTeamsVersion);
-        const migrated = applySavedShields([principalLeague, ...customLeagues]);
+        const migrated = applySavedShields([...defaultLeagues, ...customLeagues]);
         localStorage.setItem(leaguesStorageKey, JSON.stringify(migrated));
         return migrated;
       }
@@ -320,6 +371,7 @@ let matchState = {
 };
 
 window.onload = () => {
+  document.getElementById('screen-leagues')?.remove();
   loadTeam();
   renderPlayerInputs();
   populateLeagueSelectors();
