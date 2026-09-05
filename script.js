@@ -180,8 +180,8 @@ function createLeagueTeam(id, name, league, difficulty, shield, rosterText) {
     name,
     liga: league,
     nivelIa: difficulty,
-    escudo: shield,
-    logo: shield,
+    escudo: shield || createTeamLogo('#64748b'),
+    logo: shield || createTeamLogo('#64748b'),
     formation: '4-3-3',
     jogadores,
     roster: jogadores,
@@ -215,6 +215,17 @@ const ligaUruguaia2026 = [
   createLeagueTeam('rac_u', 'Racing Montevideo', 'Liga Uruguaia', 'Fácil', './liga_uruguaia/racing.png', 'Rodrigo Odriozola|Goleiro;Hugo Magallanes|Zagueiro;Lucas Rodríguez|Meia;Dylan Nandín|Atacante')
 ];
 
+const premierLeague2026 = [
+  createLeagueTeam('mci', 'Manchester City', 'Premier League', 'Difícil', '', 'Gianluigi Donnarumma|Goleiro;Gerónimo Rulli|Goleiro;Marcus Bettinelli|Goleiro;Marc Guéhi|Zagueiro;Josko Gvardiol|Zagueiro;Rúben Dias|Zagueiro;Abdukodir Khusanov|Zagueiro;Vitor Reis|Zagueiro;Nico O\'Reilly|Lateral;Rayan Aït-Nouri|Lateral;Josh Wilson-Esbrand|Lateral;Matheus Nunes|Lateral;Rico Lewis|Lateral;Elliot Anderson|Meia;Enzo Fernández|Meia;Ayyoub Bouaddi|Meia;Mateo Kovacic|Meia;Rayan Cherki|Meia;Phil Foden|Meia;Jérémy Doku|Atacante;Antoine Semenyo|Atacante;Iliman Ndiaye|Atacante;Allan|Atacante;Erling Haaland|Atacante'),
+  createLeagueTeam('ars', 'Arsenal', 'Premier League', 'Difícil', '', 'David Raya|Goleiro;Illan Meslier|Goleiro;Kepa Arrizabalaga|Goleiro;William Saliba|Zagueiro;Gabriel|Zagueiro;Piero Hincapié|Zagueiro;Ezri Konsa|Zagueiro;Cristhian Mosquera|Zagueiro;Riccardo Calafiori|Lateral;Myles Lewis-Skelly|Lateral;Jurriën Timber|Lateral;Ben White|Lateral;Martín Zubimendi|Volante;Declan Rice|Meia;Bruno Guimarães|Meia;Mikel Merino|Meia;Martin Ødegaard|Meia;Eberechi Eze|Meia;Christos Tzolis|Atacante;Bukayo Saka|Atacante;Noni Madueke|Atacante;Max Dowman|Atacante;Viktor Gyökeres|Atacante;Kai Havertz|Atacante'),
+  createLeagueTeam('che', 'Chelsea', 'Premier League', 'Difícil', '', 'Mike Penders|Goleiro;Emiliano Martínez|Goleiro;Gabriel Slonina|Goleiro;Teddy Sharman-Lowe|Goleiro;Maxence Lacroix|Zagueiro;Levi Colwill|Zagueiro;Wesley Fofana|Zagueiro;Josh Acheampong|Zagueiro;Aarón Anselmino|Zagueiro;Jorrel Hato|Lateral;Pep Chavarría|Lateral;Reece James|Lateral;Marco Palestra|Lateral;Malo Gusto|Lateral;Moisés Caicedo|Volante;Roméo Lavia|Volante;Valentín Barco|Meia;Jordan Henderson|Meia;Morgan Rogers|Meia;Cole Palmer|Meia;Kendry Páez|Meia;Jamie Gittens|Atacante;Estêvão|Atacante;Pedro Neto|Atacante;Geovany Quenda|Atacante;João Pedro|Atacante;Emmanuel Emegha|Atacante;Danny Welbeck|Atacante'),
+  createLeagueTeam('liv_e', 'Liverpool', 'Premier League', 'Difícil', '', 'Giorgi Mamardashvili|Goleiro;Alisson|Goleiro;Vitezslav Jaros|Goleiro;Freddie Woodman|Goleiro;Harvey Davies|Goleiro;Jérémy Jacquet|Zagueiro;Giovanni Leoni|Zagueiro;Ronald Araujo|Zagueiro;Virgil van Dijk|Zagueiro;Joe Gomez|Zagueiro;Milos Kerkez|Lateral;Konstantinos Tsimikas|Lateral;Jeremie Frimpong|Lateral;Conor Bradley|Lateral;Ryan Gravenberch|Volante;Wataru Endo|Volante;Alexis Mac Allister|Meia;Trey Nyoni|Meia;Florian Wirtz|Meia;Dominik Szoboszlai|Meia;Bradley Barcola|Atacante;Cody Gakpo|Atacante;Víctor Muñoz|Atacante;Rio Ngumoha|Atacante;Federico Chiesa|Atacante;Alexander Isak|Atacante;Hugo Ekitiké|Atacante'),
+  createLeagueTeam('mun', 'Manchester United', 'Premier League', 'Médio', '', 'Senne Lammens|Goleiro;Karl Darlow|Goleiro;Tom Heaton|Goleiro;Dermot Mee|Goleiro;Leny Yoro|Zagueiro;Lisandro Martínez|Zagueiro;Matthijs de Ligt|Zagueiro;Ayden Heaven|Zagueiro;Harry Maguire|Zagueiro;Luke Shaw|Lateral;Harry Amass|Lateral;Diogo Dalot|Lateral;Noussair Mazraoui|Lateral;Carlos Baleba|Volante;Andrey Santos|Volante;Manuel Ugarte|Volante;Kobbie Mainoo|Meia;Youri Tielemans|Meia;Tyler Fletcher|Meia;Bruno Fernandes|Meia;Mason Mount|Meia;Jack Fletcher|Meia;Marcus Rashford|Atacante;Patrick Dorgu|Atacante;Bryan Mbeumo|Atacante;Amad Diallo|Atacante;Matheus Cunha|Atacante;Benjamin Sesko|Atacante;Joshua Zirkzee|Atacante'),
+  createLeagueTeam('tot', 'Tottenham Hotspur', 'Premier League', 'Médio', '', 'Antonín Kinský|Goleiro;Martin Dúbravka|Goleiro;Brandon Austin|Goleiro;Jan Paul van Hecke|Zagueiro;Micky van de Ven|Zagueiro;Marcos Senesi|Zagueiro;Tosin Adarabioyo|Zagueiro;Ben Davies|Zagueiro;Destiny Udogie|Lateral;Andrew Robertson|Lateral;Pedro Porro|Lateral;Archie Gray|Lateral;Sandro Tonali|Volante;Rodrigo Bentancur|Volante;Mateus Fernandes|Meia;Lucas Bergvall|Meia;Conor Gallagher|Meia;Xavi Simons|Meia;James Maddison|Meia;Dejan Kulusevski|Meia;Sávio|Atacante;Mathys Tel|Atacante;Wilson Odobert|Atacante;Mykhaylo Mudryk|Atacante;Mohammed Kudus|Atacante;Omar Marmoush|Atacante;Dominic Solanke|Atacante;Richarlison|Atacante'),
+  createLeagueTeam('new', 'Newcastle United', 'Premier League', 'Médio', '', 'Lukas Hornicek|Goleiro;Ewen Jaouen|Goleiro;Nick Pope|Goleiro;Mark Gillespie|Goleiro;Malick Thiaw|Zagueiro;Sven Botman|Zagueiro;Fabian Schär|Zagueiro;Dan Burn|Zagueiro;Lewis Hall|Lateral;Tino Livramento|Lateral;Amar Dedic|Lateral;Nico González|Volante;Aladji Bamba|Volante;Jacob Ramsey|Meia;Joelinton|Meia;Lewis Miley|Meia;Joe Willock|Meia;Sean Steur|Meia;Bazoumana Touré|Atacante;Harvey Barnes|Atacante;Anthony Elanga|Atacante;Jacob Murphy|Atacante;Matias Fernandez-Pardo|Atacante;William Osula|Atacante;Yoane Wissa|Atacante'),
+  createLeagueTeam('avl', 'Aston Villa', 'Premier League', 'Médio', '', 'Zion Suzuki|Goleiro;Marco Bizot|Goleiro;Taylor Harwood-Bellis|Zagueiro;Pau Torres|Zagueiro;Modou Kéba Cissé|Zagueiro;Victor Lindelöf|Zagueiro;Tyrone Mings|Zagueiro;Ian Maatsen|Lateral;Matteo Ruggeri|Lateral;Matty Cash|Lateral;Aaron Wan-Bissaka|Lateral;Amadou Onana|Volante;Boubacar Kamara|Volante;Lamare Bogarde|Volante;João Gomes|Meia;John McGinn|Meia;Leon Goretzka|Meia;Ross Barkley|Meia;Johan Manzambi|Meia;Emiliano Buendía|Meia;Alejandro Garnacho|Atacante;George Hemmings|Atacante;Ibrahim Mbaye|Atacante;Alysson|Atacante;Nicolas Jackson|Atacante;Tammy Abraham|Atacante;Brian Madjo|Atacante')
+];
+
 function createPrincipalTeam(teamData) {
   const roster = teamData.jogadores.map(([nome, posicao]) => ({ nome, posicao }));
   return {
@@ -243,7 +254,8 @@ function getDefaultLeagues() {
       teams: timesPrincipais2026.map(createPrincipalTeam)
     },
     { id: 'liga-argentina', name: 'Liga Argentina', teams: ligaArgentina2026 },
-    { id: 'liga-uruguaia', name: 'Liga Uruguaia', teams: ligaUruguaia2026 }
+    { id: 'liga-uruguaia', name: 'Liga Uruguaia', teams: ligaUruguaia2026 },
+    { id: 'premier-league', name: 'Premier League', teams: premierLeague2026 }
   ];
 }
 
@@ -391,15 +403,61 @@ window.onload = () => {
 };
 
 function openLeagueManager() {
+  if (!document.getElementById('screen-leagues')) {
+    const panel = document.createElement('div');
+    panel.id = 'screen-leagues';
+    panel.className = 'card hidden';
+    document.querySelector('.container').appendChild(panel);
+  }
   showScreen('screen-leagues');
   renderLeagueManager();
 }
 
 function renderLeagueManager() {
-  renderLeagueList();
-  populateManagerLeagueSelector();
-  renderTeamCatalog();
-  if (!document.getElementById('rosterEditor').children.length) resetTeamForm();
+  const panel = document.getElementById('screen-leagues');
+  panel.innerHTML = `
+    <div class="manager-header">
+      <div><p class="eyebrow">UNIVERSO DO FUTRPG</p><h2>Ligas e Times</h2></div>
+      <button onclick="showScreen('screen-setup')" class="btn-secondary manager-back-button">Voltar</button>
+    </div>
+    <div class="readonly-manager-controls">
+      <div><label for="readonlyLeagueSelect">Liga:</label><select id="readonlyLeagueSelect" onchange="renderReadonlyTeams()"></select></div>
+      <div><label for="readonlyTeamSelect">Time:</label><select id="readonlyTeamSelect" onchange="renderReadonlyTeam()"></select></div>
+    </div>
+    <section id="readonlyTeamPanel" class="manager-panel readonly-team-panel"></section>
+  `;
+  populateReadonlyLeagueSelector();
+  renderReadonlyTeams();
+}
+
+function populateReadonlyLeagueSelector() {
+  const select = document.getElementById('readonlyLeagueSelect');
+  if (!select) return;
+  select.innerHTML = leagueData.map(league => `<option value="${escapeHtml(league.id)}">${escapeHtml(league.name)}</option>`).join('');
+}
+
+function renderReadonlyTeams() {
+  const league = leagueData.find(item => item.id === document.getElementById('readonlyLeagueSelect')?.value) || leagueData[0];
+  const select = document.getElementById('readonlyTeamSelect');
+  if (!select) return;
+  select.innerHTML = (league?.teams || []).map(teamData => `<option value="${escapeHtml(teamData.id)}">${escapeHtml(teamData.nome || teamData.name)}</option>`).join('');
+  renderReadonlyTeam();
+}
+
+function renderReadonlyTeam() {
+  const league = leagueData.find(item => item.id === document.getElementById('readonlyLeagueSelect')?.value) || leagueData[0];
+  const teamData = league?.teams.find(item => item.id === document.getElementById('readonlyTeamSelect')?.value) || league?.teams[0];
+  const panel = document.getElementById('readonlyTeamPanel');
+  if (!panel || !teamData) return;
+  const roster = getTeamRoster(teamData);
+  panel.innerHTML = `
+    <div class="readonly-team-heading">
+      <img class="readonly-team-logo" src="${escapeHtml(teamData.escudo || teamData.logo)}" alt="${escapeHtml(teamData.nome || teamData.name)}" onerror="this.style.display='none'" />
+      <div><p class="eyebrow">${escapeHtml(league.name)}</p><h3>${escapeHtml(teamData.nome || teamData.name)}</h3><p class="subtitle">Dificuldade: ${escapeHtml(teamData.nivelIa || 'Médio')}</p></div>
+    </div>
+    <h3>Jogadores (${roster.length})</h3>
+    <div class="readonly-roster">${roster.map(player => `<div class="readonly-player"><strong>${escapeHtml(player.nome)}</strong><span>${escapeHtml(player.posicao)}</span></div>`).join('')}</div>
+  `;
 }
 
 function renderLeagueList() {
