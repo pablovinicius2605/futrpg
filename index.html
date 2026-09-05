@@ -87,6 +87,28 @@
       <button onclick="showScreen('screen-tutorial')" class="btn-secondary btn-large">📖 Como Jogar (Tutorial)</button>
     </div>
     <button onclick="openLeagueManager()" class="btn-secondary" style="margin-top: 10px;">⚽ Ver Ligas e Times</button>
+    <div class="flex responsive-flex" style="margin-top: 10px;">
+      <button onclick="openCupSetup()" class="btn-gold btn-large">🏆 Copa contra IA</button>
+      <button onclick="openOnlineCupLobby()" class="btn-secondary btn-large">🌐 Copa Online</button>
+    </div>
+  </div>
+
+  <div id="screen-cup-setup" class="card hidden">
+    <div class="manager-header"><div><p class="eyebrow">MATA-MATA</p><h2>Nova Copa</h2></div><button onclick="showScreen('screen-setup')" class="btn-secondary manager-back-button">Voltar</button></div>
+    <label for="cupSizeSelect">Número de times:</label>
+    <select id="cupSizeSelect"><option value="4">4 times</option><option value="8">8 times</option><option value="16">16 times</option></select>
+    <label for="cupSeriesSelect">Confronto:</label>
+    <select id="cupSeriesSelect"><option value="single">Jogo único</option><option value="home_away">Ida e volta</option></select>
+    <label for="cupLeagueSelect">Liga dos participantes:</label>
+    <select id="cupLeagueSelect" onchange="populateCupTeams()"></select>
+    <div id="cupTeamsSelect" class="cup-team-picker"></div>
+    <button onclick="startCupTournament()" class="btn-large btn-gold">Montar chaveamento</button>
+  </div>
+
+  <div id="screen-cup-bracket" class="card hidden">
+    <div class="manager-header"><div><p class="eyebrow">COPA EM ANDAMENTO</p><h2 id="cupTitle">Mata-mata</h2></div><button onclick="quitCup()" class="btn-danger manager-back-button">Sair</button></div>
+    <div id="cupBracket" class="cup-bracket"></div>
+    <button id="cupNextButton" onclick="advanceCupRound()" class="btn-large btn-gold hidden">Avançar fase</button>
   </div>
 
   <!-- TELA 1.8: GERENCIADOR DE LIGAS E TIMES -->
