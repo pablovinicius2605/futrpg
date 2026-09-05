@@ -29,10 +29,195 @@ let finishTimeout = null;
 const defaultOpponent = {
   name: "Rivais FC",
   color: "#f75a68",
+  secondaryColor: "#18181b",
   formation: "4-4-2",
   logo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%23f75a68'><circle cx='12' cy='12' r='10'/></svg>",
   players: ["Goleiro IA", "Zagueiro IA 1", "Zagueiro IA 2", "Lateral D IA", "Lateral E IA", "Volante IA", "Meia IA 1", "Meia IA 2", "Ponta D IA", "Ponta E IA", "Atacante IA"]
 };
+
+const leaguesStorageKey = 'futrpg_v1_leagues';
+const principalTeamsVersionKey = 'futrpg_principal_teams_2026-09-final';
+const principalTeamsVersion = '2026-09-final';
+const shieldsStorageKey = 'futrpg_escudos';
+let leagueData;
+let managerLogoData = '';
+let selectedOpponent = null;
+let savedShields = loadSavedShields();
+
+function loadSavedShields() {
+  try {
+    return JSON.parse(localStorage.getItem(shieldsStorageKey)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveShield(teamId, logo) {
+  if (!teamId || !logo) return;
+  savedShields[teamId] = logo;
+  localStorage.setItem(shieldsStorageKey, JSON.stringify(savedShields));
+}
+
+function applySavedShields(leagues) {
+  leagues.forEach(league => league.teams.forEach(teamData => {
+    if (savedShields[teamData.id]) teamData.logo = savedShields[teamData.id];
+  }));
+  return leagues;
+}
+
+const timesPrincipais2026 = [
+  { id: 'fla', nome: 'Flamengo', nivelIa: 'Difícil', cor: '#e11d48', secundaria: '#111827', jogadores: [
+    ['Agustín Rossi', 'Goleiro'], ['Andrew', 'Goleiro'], ['Léo Ortiz', 'Zagueiro'], ['Léo Pereira', 'Zagueiro'], ['Vitão', 'Zagueiro'], ['Danilo', 'Zagueiro'], ['Alex Sandro', 'Lateral'], ['Ayrton Lucas', 'Lateral'], ['Emerson Royal', 'Lateral'], ['Guillermo Varela', 'Lateral'], ['Evertton Araújo', 'Volante'], ['Jorginho', 'Volante'], ['Erick Pulgar', 'Volante'], ['Lucas Paquetá', 'Meia'], ['Giorgian de Arrascaeta', 'Meia'], ['Nicolás de la Cruz', 'Meia'], ['Saúl Ñíguez', 'Meia'], ['Jorge Carrascal', 'Meia'], ['Samuel Lino', 'Atacante'], ['Everton Cebolinha', 'Atacante'], ['Gonzalo Plata', 'Atacante'], ['Luiz Araújo', 'Atacante'], ['Pedro', 'Atacante'], ['Bruno Henrique', 'Atacante']
+  ] },
+  { id: 'pal', nome: 'Palmeiras', nivelIa: 'Difícil', cor: '#15803d', secundaria: '#f4f4f5', jogadores: [
+    ['Carlos Miguel', 'Goleiro'], ['Weverton', 'Goleiro'], ['Marcelo Lomba', 'Goleiro'], ['Murilo', 'Zagueiro'], ['Gustavo Gómez', 'Zagueiro'], ['Alexander Barboza', 'Zagueiro'], ['Bruno Fuchs', 'Zagueiro'], ['Joaquín Piquerez', 'Lateral'], ['Jefté', 'Lateral'], ['Agustín Giay', 'Lateral'], ['Khellven', 'Lateral'], ['Marlon Freitas', 'Volante'], ['Emiliano Martínez', 'Volante'], ['Aníbal Moreno', 'Volante'], ['Andreas Pereira', 'Meia'], ['Lucas Evangelista', 'Meia'], ['Mauricio', 'Meia'], ['Felipe Anderson', 'Meia'], ['Jhon Arias', 'Atacante'], ['Paulinho', 'Atacante'], ['Ramón Sosa', 'Atacante'], ['Vitor Roque', 'Atacante'], ['Flaco López', 'Atacante']
+  ] },
+  { id: 'cru', nome: 'Cruzeiro', nivelIa: 'Difícil', cor: '#2563eb', secundaria: '#f4f4f5', jogadores: [
+    ['Cássio', 'Goleiro'], ['Léo Aragão', 'Goleiro'], ['Otávio Costa', 'Goleiro'], ['Fabrício Bruno', 'Zagueiro'], ['Jonathan Jesus', 'Zagueiro'], ['João Marcelo', 'Zagueiro'], ['Lucas Villalba', 'Zagueiro'], ['Gabriel Rojas', 'Lateral'], ['William', 'Lateral'], ['Kauã Moraes', 'Lateral'], ['Zé Lucas', 'Volante'], ['Lucas Romero', 'Volante'], ['Lucas Silva', 'Volante'], ['Gerson', 'Meia'], ['Matheus Henrique', 'Meia'], ['Matheus Pereira', 'Meia'], ['Fabrizio Peralta', 'Meia'], ['Luis Sinisterra', 'Atacante'], ['Keny Arroyo', 'Atacante'], ['Gabriel Pec', 'Atacante'], ['Wanderson', 'Atacante'], ['Kaio Jorge', 'Atacante'], ['Luciano Rodríguez', 'Atacante'], ['Chico da Costa', 'Atacante']
+  ] },
+  { id: 'cor', nome: 'Corinthians', nivelIa: 'Médio', cor: '#f4f4f5', secundaria: '#111827', jogadores: [
+    ['Hugo Souza', 'Goleiro'], ['Felipe Longo', 'Goleiro'], ['João Pedro Tchoca', 'Zagueiro'], ['André Ramalho', 'Zagueiro'], ['Gustavo Henrique', 'Zagueiro'], ['Gabriel Paulista', 'Zagueiro'], ['Matheus Bidu', 'Lateral'], ['Hugo', 'Lateral'], ['Matheuzinho', 'Lateral'], ['Pedro Milans', 'Lateral'], ['Raniele', 'Volante'], ['Allan', 'Volante'], ['Charles', 'Volante'], ['José Martínez', 'Volante'], ['Breno Bidon', 'Meia'], ['André', 'Meia'], ['André Carrillo', 'Meia'], ['Rodrigo Garro', 'Meia'], ['Jesse Lingard', 'Meia'], ['Igor Coronado', 'Meia'], ['Vitinho', 'Atacante'], ['Kaio César', 'Atacante'], ['Yuri Alberto', 'Atacante'], ['Memphis Depay', 'Atacante'], ['Gui Negão', 'Atacante'], ['Pedro Raul', 'Atacante']
+  ] },
+  { id: 'vas', nome: 'Vasco da Gama', nivelIa: 'Médio', cor: '#f4f4f5', secundaria: '#111827', jogadores: [
+    ['Léo Jardim', 'Goleiro'], ['Daniel Fuzato', 'Goleiro'], ['Robert Renan', 'Zagueiro'], ['Carlos Cuesta', 'Zagueiro'], ['Alan Saldivia', 'Zagueiro'], ['Lucas Freitas', 'Zagueiro'], ['Cuiabano', 'Lateral'], ['Lucas Piton', 'Lateral'], ['Paulo Henrique', 'Lateral'], ['José Luis Rodríguez', 'Lateral'], ['Santiago Sosa', 'Volante'], ['Cauan Barros', 'Volante'], ['Thiago Mendes', 'Volante'], ['Mateus Carvalho', 'Volante'], ['Jair', 'Volante'], ['Tchê Tchê', 'Meia'], ['Johan Rojas', 'Meia'], ['Andrés Gómez', 'Atacante'], ['David', 'Atacante'], ['Nuno Moreira', 'Atacante'], ['Marino Hinestroza', 'Atacante'], ['Adson', 'Atacante'], ['Facundo Colidio', 'Atacante'], ['Bruno Duarte', 'Atacante'], ['Brenner', 'Atacante'], ['Claudio Spinelli', 'Atacante']
+  ] },
+  { id: 'bot', nome: 'Botafogo', nivelIa: 'Difícil', cor: '#111827', secundaria: '#f4f4f5', jogadores: [
+    ['Gabriel Batista', 'Goleiro'], ['Warleson', 'Goleiro'], ['Cristhian Loor', 'Goleiro'], ['Nahuel Ferraresi', 'Zagueiro'], ['Kaio', 'Zagueiro'], ['Lucas Monzón', 'Zagueiro'], ['Gabriel Justino', 'Zagueiro'], ['Alex Telles', 'Lateral'], ['Marçal', 'Lateral'], ['Vitinho', 'Lateral'], ['Mateo Ponte', 'Lateral'], ['Domingos Andrade', 'Volante'], ['Allan', 'Volante'], ['Wallace Davi', 'Volante'], ['Danilo', 'Meia'], ['Cristian Medina', 'Meia'], ['Jordan Barrera', 'Meia'], ['Álvaro Montoro', 'Atacante'], ['Matheus Martins', 'Atacante'], ['Júnior Santos', 'Atacante'], ['Lucas Villalba', 'Atacante'], ['Arthur Cabral', 'Atacante'], ['Kadir Barría', 'Atacante'], ['Tiquinho Soares', 'Atacante']
+  ] },
+  { id: 'flu', nome: 'Fluminense', nivelIa: 'Médio', cor: '#15803d', secundaria: '#facc15', jogadores: [
+    ['Fábio', 'Goleiro'], ['Vitor Eudes', 'Goleiro'], ['Marcelo Pitaluga', 'Goleiro'], ['Juan Pablo Freytes', 'Zagueiro'], ['Julián Millán', 'Zagueiro'], ['Jemmes', 'Zagueiro'], ['Ignácio', 'Zagueiro'], ['Igor Rabello', 'Zagueiro'], ['Thiago Silva', 'Zagueiro'], ['Guilherme Arana', 'Lateral'], ['Renê', 'Lateral'], ['Guga', 'Lateral'], ['Samuel Xavier', 'Lateral'], ['Martinelli', 'Volante'], ['Otávio', 'Volante'], ['Hércules', 'Meia'], ['Nonato', 'Meia'], ['Jefferson Savarino', 'Meia'], ['Luciano Acosta', 'Meia'], ['Ganso', 'Meia'], ['Yeferson Soteldo', 'Atacante'], ['Agustín Canobbio', 'Atacante'], ['Kevin Serna', 'Atacante'], ['John Kennedy', 'Atacante'], ['Rodrigo Castillo', 'Atacante'], ['Hulk', 'Atacante'], ['Germán Cano', 'Atacante']
+  ] },
+  { id: 'cam', nome: 'Atlético Mineiro', nivelIa: 'Médio', cor: '#111827', secundaria: '#facc15', jogadores: [
+    ['Everson', 'Goleiro'], ['Pedro Cobra', 'Goleiro'], ['Gabriel Delfim', 'Goleiro'], ['Lyanco', 'Zagueiro'], ['Ruan Tressoldi', 'Zagueiro'], ['Léo Duarte', 'Zagueiro'], ['Vitor Hugo', 'Zagueiro'], ['Renan Lodi', 'Lateral'], ['Natanael', 'Lateral'], ['Angelo Preciado', 'Lateral'], ['Alexsander', 'Volante'], ['Kevin Castaño', 'Volante'], ['Tomás Pérez', 'Volante'], ['Patrick', 'Volante'], ['Victor Hugo', 'Meia'], ['Fred', 'Meia'], ['Alan Franco', 'Meia'], ['Maycon', 'Meia'], ['Gustavo Scarpa', 'Meia'], ['Igor Gomes', 'Meia'], ['Reinier', 'Meia'], ['Tomás Cuello', 'Atacante'], ['Dudu', 'Atacante'], ['Bernard', 'Atacante'], ['Alan Minda', 'Atacante'], ['Mateo Cassierra', 'Atacante'], ['Thiago Borbas', 'Atacante']
+  ] },
+  { id: 'sao', nome: 'São Paulo', nivelIa: 'Médio', cor: '#e11d48', secundaria: '#f4f4f5', jogadores: [
+    ['Carlos Coronel', 'Goleiro'], ['Rafael', 'Goleiro'], ['Young', 'Goleiro'], ['Sabino', 'Zagueiro'], ['Rafael Tolói', 'Zagueiro'], ['Domingos Duarte', 'Zagueiro'], ['Robert Arboleda', 'Zagueiro'], ['Iago', 'Lateral'], ['Enzo Díaz', 'Lateral'], ['Wendell', 'Lateral'], ['Aurélio Buta', 'Lateral'], ['Maik', 'Lateral'], ['Cédric Soares', 'Lateral'], ['Pablo Maia', 'Volante'], ['Newton', 'Volante'], ['Marcos Antônio', 'Meia'], ['Damián Bobadilla', 'Meia'], ['Cauly', 'Meia'], ['Ferreirinha', 'Atacante'], ['Victor Sá', 'Atacante'], ['Artur', 'Atacante'], ['Lucas Moura', 'Atacante'], ['Ryan Francisco', 'Atacante'], ['André Silva', 'Atacante'], ['Jonathan Calleri', 'Atacante'], ['Luciano', 'Atacante']
+  ] },
+  { id: 'san', nome: 'Santos', nivelIa: 'Fácil', cor: '#f4f4f5', secundaria: '#111827', jogadores: [
+    ['Gabriel Brazão', 'Goleiro'], ['João Paulo', 'Goleiro'], ['Diógenes', 'Goleiro'], ['Lucas Veríssimo', 'Zagueiro'], ['Alexis Duarte', 'Zagueiro'], ['Luan Peres', 'Zagueiro'], ['Vinicius Lira', 'Lateral'], ['Gonzalo Escobar', 'Lateral'], ['Gabriel Menino', 'Lateral'], ['Igor Vinícius', 'Lateral'], ['Rodinei', 'Lateral'], ['Arthur Melo', 'Volante'], ['Christian Oliva', 'Volante'], ['Willian Arão', 'Volante'], ['João Schmidt', 'Volante'], ['Gabriel Bontempo', 'Meia'], ['Neymar', 'Meia'], ['Miguelito', 'Meia'], ['Thaciano', 'Meia'], ['Álvaro Barreal', 'Atacante'], ['Moisés', 'Atacante'], ['Benjamín Rollheiser', 'Atacante'], ['Rony', 'Atacante'], ['Gabriel Barbosa', 'Atacante']
+  ] },
+  { id: 'bah', nome: 'Bahia', nivelIa: 'Médio', cor: '#2563eb', secundaria: '#f4f4f5', jogadores: [
+    ['Ronaldo', 'Goleiro'], ['Guido Herrera', 'Goleiro'], ['Léo Vieira', 'Goleiro'], ['Santiago Ramos Mingo', 'Zagueiro'], ['Kanu', 'Zagueiro'], ['David Duarte', 'Zagueiro'], ['Marco Moreno', 'Zagueiro'], ['Luciano Juba', 'Lateral'], ['Román Gómez', 'Lateral'], ['Caio Alexandre', 'Volante'], ['Nicolás Acevedo', 'Volante'], ['Erick', 'Volante'], ['Jean Lucas', 'Meia'], ['Rodrigo Nestor', 'Meia'], ['Everton Ribeiro', 'Meia'], ['Erick Pulga', 'Atacante'], ['Ruan Pablo', 'Atacante'], ['Mateo Sanabria', 'Atacante'], ['Cristian Olivera', 'Atacante'], ['Michel Araújo', 'Atacante'], ['Ademir', 'Atacante'], ['Alejo Veliz', 'Atacante'], ['Dell', 'Atacante'], ['Willian José', 'Atacante'], ['Everaldo', 'Atacante']
+  ] },
+  { id: 'int', nome: 'Internacional', nivelIa: 'Médio', cor: '#dc2626', secundaria: '#f4f4f5', jogadores: [
+    ['Sergio Rochet', 'Goleiro'], ['Anthoni', 'Goleiro'], ['Vitão', 'Zagueiro'], ['Agustín Rogel', 'Zagueiro'], ['Gabriel Mercado', 'Zagueiro'], ['Alexandro Bernabei', 'Lateral'], ['Renê', 'Lateral'], ['Bruno Gomes', 'Lateral'], ['Thiago Maia', 'Volante'], ['Fernando', 'Volante'], ['Rômulo', 'Volante'], ['Paulinho Paula', 'Meia'], ['Bruno Henrique', 'Meia'], ['Alan Patrick', 'Meia'], ['Gabriel Carvalho', 'Meia'], ['Hyoran', 'Meia'], ['Wesley', 'Atacante'], ['Wanderson', 'Atacante'], ['Rafael Borré', 'Atacante'], ['Enner Valencia', 'Atacante'], ['Lucas Alario', 'Atacante']
+  ] },
+  { id: 'rbb', nome: 'RB Bragantino', nivelIa: 'Médio', cor: '#dc2626', secundaria: '#f4f4f5', jogadores: [
+    ['Cleiton', 'Goleiro'], ['Tiago Volpi', 'Goleiro'], ['Pedro Henrique', 'Zagueiro'], ['Gustavo Marques', 'Zagueiro'], ['Guzmán Rodríguez', 'Zagueiro'], ['Alix', 'Zagueiro'], ['Juninho Capixaba', 'Lateral'], ['Vanderlan', 'Lateral'], ["Agustín Sant'Anna", 'Lateral'], ['José Andrés Hurtado', 'Lateral'], ['Fabinho', 'Volante'], ['Matheus Fernandes', 'Volante'], ['Gabriel', 'Volante'], ['Ignacio Sosa', 'Meia'], ['Eric Ramires', 'Meia'], ['Rodriguinho', 'Meia'], ['Praxedes', 'Meia'], ['Henry Mosquera', 'Atacante'], ['Vinicinho', 'Atacante'], ['Lucas Barbosa', 'Atacante'], ['Isidro Pitta', 'Atacante'], ['Eduardo Sasha', 'Atacante'], ['Wallace Yan', 'Atacante']
+  ] },
+  { id: 'ath', nome: 'Athletico Paranaense', nivelIa: 'Médio', cor: '#e11d48', secundaria: '#111827', jogadores: [
+    ['Mycael', 'Goleiro'], ['Santos', 'Goleiro'], ['Arthur Dias', 'Zagueiro'], ['Carlos Terán', 'Zagueiro'], ['Juan Felipe Aguirre', 'Zagueiro'], ['Léo', 'Zagueiro'], ['Lucas Esquivel', 'Lateral'], ['Léo Derik', 'Lateral'], ['Gastón Benavídez', 'Lateral'], ['Gilberto', 'Lateral'], ['Juan Portilla', 'Volante'], ['Felipinho', 'Volante'], ['Jádson', 'Volante'], ['João Cruz', 'Meia'], ['Bruno Zapelli', 'Meia'], ['Chiqueti', 'Meia'], ['Dudu', 'Meia'], ['Isaac', 'Atacante'], ['Stiven Mendoza', 'Atacante'], ['Kerwin Vargas', 'Atacante'], ['Kevin Viveros', 'Atacante'], ['Jorge Rivaldo', 'Atacante']
+  ] },
+  { id: 'gre', nome: 'Grêmio', nivelIa: 'Médio', cor: '#2563eb', secundaria: '#f4f4f5', jogadores: [
+    ['Gabriel Grando', 'Goleiro'], ['Weverton', 'Goleiro'], ['Gustavo Martins', 'Zagueiro'], ['Wagner Leonardo', 'Zagueiro'], ['Fabián Balbuena', 'Zagueiro'], ['Walter Kannemann', 'Zagueiro'], ['Marlon', 'Lateral'], ['Caio Paulista', 'Lateral'], ['João Pedro', 'Lateral'], ['Marcos Rocha', 'Lateral'], ['Mathías Villasanti', 'Volante'], ['Erick Noriega', 'Volante'], ['Danilo Barbosa', 'Volante'], ['Juan Nardoni', 'Meia'], ['Filip Krovinovic', 'Meia'], ['Miguel Monsalve', 'Meia'], ['Francis Amuzu', 'Atacante'], ['Tetê', 'Atacante'], ['Jovane Cabral', 'Atacante'], ['Cristian Pavón', 'Atacante'], ['Carlos Vinícius', 'Atacante'], ['Martin Braithwaite', 'Atacante']
+  ] },
+  { id: 'vic', nome: 'EC Vitória', nivelIa: 'Fácil', cor: '#e11d48', secundaria: '#111827', jogadores: [
+    ['Lucas Arcanjo', 'Goleiro'], ['Muriel', 'Goleiro'], ['Wagner Leonardo', 'Zagueiro'], ['Neris', 'Zagueiro'], ['Camutanga', 'Zagueiro'], ['Lucas Esteves', 'Lateral'], ['Raúl Cáceres', 'Lateral'], ['Willian Oliveira', 'Volante'], ['Luan Santos', 'Volante'], ['Matheusinho', 'Meia'], ['Jean Mota', 'Meia'], ['Osvaldo', 'Atacante'], ['Carlos Eduardo', 'Atacante'], ['Janderson', 'Atacante'], ['Alerrandro', 'Atacante']
+  ] },
+  { id: 'cfc', nome: 'Coritiba', nivelIa: 'Fácil', cor: '#16a34a', secundaria: '#f4f4f5', jogadores: [
+    ['Pedro Morisco', 'Goleiro'], ['Marcelo Benevenuto', 'Zagueiro'], ['Maurício Antônio', 'Zagueiro'], ['Thalisson', 'Zagueiro'], ['Rodrigo Gelado', 'Lateral'], ['Natanael', 'Lateral'], ['Morelli', 'Volante'], ['Vini Paulista', 'Volante'], ['Matheus Frizzo', 'Meia'], ['Sebastian Gómez', 'Meia'], ['Robson', 'Atacante'], ['Lucas Ronier', 'Atacante'], ['Junior Brumado', 'Atacante']
+  ] },
+  { id: 'mir', nome: 'Mirassol', nivelIa: 'Fácil', cor: '#facc15', secundaria: '#111827', jogadores: [
+    ['Alex Muralha', 'Goleiro'], ['João Victor', 'Zagueiro'], ['Luiz Otávio', 'Zagueiro'], ['Gazal', 'Zagueiro'], ['Zeca', 'Lateral'], ['Lucas Ramon', 'Lateral'], ['Neto Moura', 'Volante'], ['Danielzinho', 'Meia'], ['Gabriel', 'Meia'], ['Negueba', 'Atacante'], ['Chico Kim', 'Atacante'], ['Dellatorre', 'Atacante']
+  ] },
+  { id: 'rem', nome: 'Remo', nivelIa: 'Fácil', cor: '#2563eb', secundaria: '#facc15', jogadores: [
+    ['Marcelo Rangel', 'Goleiro'], ['Ligger', 'Zagueiro'], ['Rafael Castro', 'Zagueiro'], ['Sávio', 'Lateral'], ['Vidal', 'Lateral'], ['Jaderson', 'Volante'], ['Giovanni Pavani', 'Meia'], ['Marco Antônio', 'Meia'], ['Pedro Vitor', 'Atacante'], ['Kelvin', 'Atacante'], ['Rodrigo Alves', 'Atacante'], ['Ytalo', 'Atacante']
+  ] },
+  { id: 'cha', nome: 'Chapecoense', nivelIa: 'Fácil', cor: '#16a34a', secundaria: '#f4f4f5', jogadores: [
+    ['Léo Vieira', 'Goleiro'], ['Bruno Leonardo', 'Zagueiro'], ['Rodrigo Moledo', 'Zagueiro'], ['Mancha', 'Lateral'], ['Maílton', 'Lateral'], ['Foguinho', 'Volante'], ['Tarik', 'Volante'], ['Giovanni Augusto', 'Meia'], ['Marcinho', 'Atacante'], ['Ítalo', 'Atacante'], ['Mário Sérgio', 'Atacante'], ['Perotti', 'Atacante']
+  ] }
+];
+
+function createPrincipalTeam(teamData) {
+  const roster = teamData.jogadores.map(([nome, posicao]) => ({ nome, posicao }));
+  return {
+    id: teamData.id,
+    nome: teamData.nome,
+    name: teamData.nome,
+    liga: 'Brasileirão Série A',
+    nivelIa: teamData.nivelIa,
+    color: teamData.cor,
+    secondaryColor: teamData.secundaria,
+    formation: '4-3-3',
+    logo: savedShields[teamData.id] || createTeamLogo(teamData.cor),
+    jogadores: roster,
+    roster,
+    players: roster.map(player => player.nome),
+    aiDifficulty: teamData.nivelIa
+  };
+}
+
+function getDefaultLeagues() {
+  return [{
+    id: 'brasileirao-serie-a',
+    name: 'Brasileirão Série A',
+    teams: timesPrincipais2026.map(createPrincipalTeam)
+  }];
+}
+
+function createManagedTeam(name, color, secondaryColor, formation) {
+  const players = ['Goleiro', 'Zagueiro', 'Lateral', 'Volante', 'Meia', 'Ponta', 'Atacante'];
+  return {
+    id: `team-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    color,
+    secondaryColor,
+    formation,
+    logo: createTeamLogo(color),
+    players,
+    roster: players.map((player, index) => ({ nome: player, posicao: index === 0 ? 'GOL' : 'LINHA' }))
+  };
+}
+
+function createTeamLogo(color) {
+  return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='${encodeURIComponent(color)}'><path d='M12 2L3 6v5c0 5.5 3.8 9.8 9 11 5.2-1.2 9-5.5 9-11V6l-9-4z'/></svg>`;
+}
+
+function loadLeagueData() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(leaguesStorageKey));
+    if (Array.isArray(saved) && saved.length) {
+      if (localStorage.getItem(principalTeamsVersionKey) !== principalTeamsVersion) {
+        const principalLeague = getDefaultLeagues()[0];
+        const customLeagues = saved.filter(league => league.id !== principalLeague.id && league.name !== 'Brasileirão Série A');
+        const legacyLeague = saved.find(league => league.id === principalLeague.id || league.name === 'Brasileirão Série A');
+        const legacyCustomTeams = legacyLeague?.teams?.filter(teamData => !['fla', 'pal', 'cru', 'cor', 'vas', 'bot', 'flu', 'cam', 'sao', 'san', 'bah', 'int', 'fortaleza'].includes(teamData.id)) || [];
+        principalLeague.teams.push(...legacyCustomTeams.filter(teamData => !principalLeague.teams.some(current => current.id === teamData.id)));
+        localStorage.setItem(principalTeamsVersionKey, principalTeamsVersion);
+        const migrated = applySavedShields([principalLeague, ...customLeagues]);
+        localStorage.setItem(leaguesStorageKey, JSON.stringify(migrated));
+        return migrated;
+      }
+      return applySavedShields(saved);
+    }
+  } catch (error) {
+    console.warn('Não foi possível carregar as ligas salvas.', error);
+  }
+  const defaults = getDefaultLeagues();
+  localStorage.setItem(leaguesStorageKey, JSON.stringify(defaults));
+  localStorage.setItem(principalTeamsVersionKey, principalTeamsVersion);
+  return applySavedShields(defaults);
+}
+
+leagueData = loadLeagueData();
+
+function saveLeagueData() {
+  localStorage.setItem(leaguesStorageKey, JSON.stringify(leagueData));
+}
+
+function getTeamRoster(teamData) {
+  if (Array.isArray(teamData.roster) && teamData.roster.length) {
+    return teamData.roster.map(player => ({
+      nome: player.nome || player.name || '',
+      posicao: player.posicao || player.position || 'LINHA'
+    }));
+  }
+  return (teamData.players || []).map(nome => ({ nome, posicao: 'LINHA' }));
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+}
 
 let team = {
   name: "Meu Time FC",
@@ -43,7 +228,29 @@ let team = {
 };
 
 let gameMode = 'ia'; // 'ia', 'penalties_only', 'online'
+let aiDifficulty = 'medium';
 let isExtraAction = false;
+
+const aiDifficultySettings = {
+  easy: {
+    attackWeights: { PASSE: 0.45, DRIBLE: 0.45, CHUTE: 0.10 },
+    defenseWeights: { DIVIDIDA: 0.45, INTERCEPTAÇÃO: 0.45, BLOQUEIO: 0.10 },
+    cornerWeights: { OLIMPICO: 0.25, MUVUCA: 0.35, CURTO: 0.40 },
+    directionWeights: { ESQUERDA: 0.25, MEIO: 0.50, DIREITA: 0.25 }
+  },
+  medium: {
+    attackWeights: { PASSE: 0.35, DRIBLE: 0.35, CHUTE: 0.30 },
+    defenseWeights: { DIVIDIDA: 0.35, INTERCEPTAÇÃO: 0.35, BLOQUEIO: 0.30 },
+    cornerWeights: { OLIMPICO: 0.34, MUVUCA: 0.33, CURTO: 0.33 },
+    directionWeights: { ESQUERDA: 0.34, MEIO: 0.32, DIREITA: 0.34 }
+  },
+  hard: {
+    attackWeights: { PASSE: 0.30, DRIBLE: 0.30, CHUTE: 0.40 },
+    defenseWeights: { DIVIDIDA: 0.30, INTERCEPTAÇÃO: 0.30, BLOQUEIO: 0.40 },
+    cornerWeights: { OLIMPICO: 0.40, MUVUCA: 0.35, CURTO: 0.25 },
+    directionWeights: { ESQUERDA: 0.40, MEIO: 0.20, DIREITA: 0.40 }
+  }
+};
 
 let matchState = {
   half: 1, // 1, 2, 3 (1ª Prorr), 4 (2ª Prorr), 5 (Pênaltis)
@@ -64,12 +271,15 @@ let matchState = {
     currentKicker: 'A'
   },
   goalsA: [],
-  goalsB: []
+  goalsB: [],
+  playerHistory: { attack: [], defense: [], direction: [], corner: [] },
+  aiHistory: { attack: [], defense: [], direction: [], corner: [] }
 };
 
 window.onload = () => {
   loadTeam();
   renderPlayerInputs();
+  populateLeagueSelectors();
 
   // Tratamento de Convite por Link via URL (Ex: ?room=SB2K6N)
   const urlParams = new URLSearchParams(window.location.search);
@@ -84,6 +294,197 @@ window.onload = () => {
       }, 500);
   }
 };
+
+function openLeagueManager() {
+  showScreen('screen-leagues');
+  renderLeagueManager();
+}
+
+function renderLeagueManager() {
+  renderLeagueList();
+  populateManagerLeagueSelector();
+  renderTeamCatalog();
+  if (!document.getElementById('rosterEditor').children.length) resetTeamForm();
+}
+
+function renderLeagueList() {
+  const list = document.getElementById('leagueList');
+  if (!list) return;
+  list.innerHTML = leagueData.map(league => `
+    <button class="${league.id === document.getElementById('managerLeagueSelect')?.value ? 'active' : ''}" onclick="selectManagerLeague('${league.id}')">
+      ${escapeHtml(league.name)} <span>(${league.teams.length})</span>
+    </button>
+    <button class="btn-danger compact-button" onclick="deleteLeague('${league.id}')">Excluir liga</button>
+  `).join('');
+}
+
+function populateManagerLeagueSelector(selectedId) {
+  const select = document.getElementById('managerLeagueSelect');
+  if (!select) return;
+  const currentId = selectedId || select.value || leagueData[0]?.id;
+  select.innerHTML = leagueData.map(league => `<option value="${league.id}">${escapeHtml(league.name)}</option>`).join('');
+  if (leagueData.some(league => league.id === currentId)) select.value = currentId;
+}
+
+function populateLeagueSelectors() {
+  const select = document.getElementById('aiLeagueSelect');
+  if (!select) return;
+  const currentId = select.value || leagueData[0]?.id;
+  select.innerHTML = leagueData.map(league => `<option value="${league.id}">${escapeHtml(league.name)}</option>`).join('');
+  if (leagueData.some(league => league.id === currentId)) select.value = currentId;
+  updateOpponentSelector();
+}
+
+function updateOpponentSelector() {
+  const leagueSelect = document.getElementById('aiLeagueSelect');
+  const opponentSelect = document.getElementById('aiOpponentSelect');
+  if (!leagueSelect || !opponentSelect) return;
+  const league = leagueData.find(item => item.id === leagueSelect.value) || leagueData[0];
+  opponentSelect.innerHTML = (league?.teams || []).map(teamData => `<option value="${teamData.id}">${escapeHtml(teamData.name)}</option>`).join('');
+  selectedOpponent = league?.teams[0] || null;
+}
+
+function selectOpponent() {
+  const league = leagueData.find(item => item.id === document.getElementById('aiLeagueSelect')?.value);
+  selectedOpponent = league?.teams.find(teamData => teamData.id === document.getElementById('aiOpponentSelect')?.value) || league?.teams[0] || null;
+}
+
+function createLeague() {
+  const input = document.getElementById('leagueNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const league = { id: `league-${Date.now()}`, name, teams: [] };
+  leagueData.push(league);
+  saveLeagueData();
+  input.value = '';
+  renderLeagueManager();
+  populateLeagueSelectors();
+  document.getElementById('managerLeagueSelect').value = league.id;
+}
+
+function selectManagerLeague(leagueId) {
+  populateManagerLeagueSelector(leagueId);
+  renderLeagueList();
+  resetTeamForm();
+}
+
+function deleteLeague(leagueId) {
+  if (leagueData.length === 1) {
+    alert('Mantenha pelo menos uma liga cadastrada.');
+    return;
+  }
+  const league = leagueData.find(item => item.id === leagueId);
+  if (!league || !confirm(`Excluir a liga ${league.name} e seus times?`)) return;
+  leagueData = leagueData.filter(item => item.id !== leagueId);
+  saveLeagueData();
+  renderLeagueManager();
+  populateLeagueSelectors();
+}
+
+function renderTeamCatalog() {
+  const catalog = document.getElementById('teamCatalog');
+  const count = document.getElementById('teamCatalogCount');
+  if (!catalog) return;
+  const teams = leagueData.flatMap(league => league.teams.map(teamData => ({ ...teamData, leagueName: league.name })));
+  count.innerText = `${teams.length} time${teams.length === 1 ? '' : 's'}`;
+  catalog.innerHTML = teams.map(teamData => `
+    <div class="team-catalog-item" style="--team-primary:${escapeHtml(teamData.color)}">
+      <img src="${escapeHtml(teamData.logo)}" alt="Escudo de ${escapeHtml(teamData.name)}" />
+      <div class="team-catalog-info"><strong>${escapeHtml(teamData.name)}</strong><small>${escapeHtml(teamData.leagueName)} · ${getTeamRoster(teamData).length} jogadores</small></div>
+      <div class="team-catalog-actions">
+        <button class="btn-secondary" onclick="editManagedTeam('${teamData.id}')">Editar</button>
+        <button class="btn-danger" onclick="deleteManagedTeam('${teamData.id}')">Excluir</button>
+      </div>
+    </div>
+  `).join('') || '<p class="subtitle">Nenhum time cadastrado ainda.</p>';
+}
+
+function addRosterRow(player = {}) {
+  const editor = document.getElementById('rosterEditor');
+  const row = document.createElement('div');
+  row.className = 'roster-row';
+  row.innerHTML = `<input class="roster-name" type="text" placeholder="Nome" value="${escapeHtml(player.nome || player.name)}"><input class="roster-position" type="text" placeholder="Posição" value="${escapeHtml(player.posicao || player.position)}"><button type="button" onclick="this.parentElement.remove()">Remover</button>`;
+  editor.appendChild(row);
+}
+
+function resetTeamForm() {
+  document.getElementById('editingTeamId').value = '';
+  document.getElementById('teamFormTitle').innerText = 'Novo time';
+  document.getElementById('managerTeamName').value = '';
+  document.getElementById('managerPrimaryColor').value = '#00b37e';
+  document.getElementById('managerSecondaryColor').value = '#f4f4f5';
+  document.getElementById('managerLogoUrl').value = '';
+  managerLogoData = '';
+  document.getElementById('managerLogoPreview').src = createTeamLogo('#00b37e');
+  const editor = document.getElementById('rosterEditor');
+  editor.innerHTML = '';
+  ['Goleiro', 'Defensor', 'Meia', 'Atacante'].forEach((nome, index) => addRosterRow({ nome, posicao: index === 0 ? 'GOL' : 'LINHA' }));
+}
+
+function editManagedTeam(teamId) {
+  const league = leagueData.find(item => item.teams.some(teamData => teamData.id === teamId));
+  const teamData = league?.teams.find(item => item.id === teamId);
+  if (!teamData) return;
+  document.getElementById('editingTeamId').value = teamId;
+  document.getElementById('teamFormTitle').innerText = 'Editar time';
+  document.getElementById('managerLeagueSelect').value = league.id;
+  document.getElementById('managerTeamName').value = teamData.name;
+  document.getElementById('managerPrimaryColor').value = teamData.color;
+  document.getElementById('managerSecondaryColor').value = teamData.secondaryColor || '#f4f4f5';
+  document.getElementById('managerLogoUrl').value = teamData.logo.startsWith('data:') ? '' : teamData.logo;
+  managerLogoData = teamData.logo.startsWith('data:') ? teamData.logo : '';
+  document.getElementById('managerLogoPreview').src = teamData.logo;
+  document.getElementById('rosterEditor').innerHTML = '';
+  getTeamRoster(teamData).forEach(addRosterRow);
+  document.getElementById('managerTeamName').focus();
+}
+
+function saveManagedTeam() {
+  const league = leagueData.find(item => item.id === document.getElementById('managerLeagueSelect').value);
+  const name = document.getElementById('managerTeamName').value.trim();
+  const rows = [...document.querySelectorAll('#rosterEditor .roster-row')];
+  const roster = rows.map(row => ({
+    nome: row.querySelector('.roster-name').value.trim(),
+    posicao: row.querySelector('.roster-position').value.trim() || 'LINHA'
+  })).filter(player => player.nome);
+  if (!league || !name || !roster.length) {
+    alert('Informe o nome do time e pelo menos um jogador.');
+    return;
+  }
+  const editingId = document.getElementById('editingTeamId').value;
+  const logo = document.getElementById('managerLogoUrl').value.trim() || managerLogoData || createTeamLogo(document.getElementById('managerPrimaryColor').value);
+  const teamData = { id: editingId || `team-${Date.now()}`, name, color: document.getElementById('managerPrimaryColor').value, secondaryColor: document.getElementById('managerSecondaryColor').value, formation: '4-4-2', logo, roster, players: roster.map(player => player.nome) };
+  const previousLeague = leagueData.find(item => item.teams.some(itemTeam => itemTeam.id === teamData.id));
+  if (previousLeague) previousLeague.teams = previousLeague.teams.filter(itemTeam => itemTeam.id !== teamData.id);
+  league.teams.push(teamData);
+  saveShield(teamData.id, logo);
+  saveLeagueData();
+  renderLeagueManager();
+  populateLeagueSelectors();
+  resetTeamForm();
+}
+
+function deleteManagedTeam(teamId) {
+  const league = leagueData.find(item => item.teams.some(teamData => teamData.id === teamId));
+  if (!league || !confirm('Excluir este time?')) return;
+  league.teams = league.teams.filter(teamData => teamData.id !== teamId);
+  saveLeagueData();
+  renderLeagueManager();
+  populateLeagueSelectors();
+}
+
+function handleManagerLogoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    managerLogoData = reader.result;
+    const editingId = document.getElementById('editingTeamId').value;
+    if (editingId) saveShield(editingId, managerLogoData);
+    document.getElementById('managerLogoPreview').src = managerLogoData;
+  };
+  reader.readAsDataURL(file);
+}
 
 function renderPlayerInputs() {
   const container = document.getElementById("playersInput");
@@ -177,6 +578,10 @@ function hideOverlay() {
 // === CENTRALIZAÇÃO DE FLUXO INICIAL === //
 function startMode(mode) {
   gameMode = mode;
+  if (mode === 'ia' || mode === 'penalties_only') {
+    aiDifficulty = document.getElementById('aiDifficulty')?.value || 'medium';
+    selectOpponent();
+  }
   if (mode === 'online') {
     openOnlineLobby();
     return;
@@ -375,7 +780,7 @@ function getActiveTeams() {
   } else {
     return {
       A: team,
-      B: defaultOpponent
+      B: selectedOpponent || defaultOpponent
     };
   }
 }
@@ -387,6 +792,10 @@ function narrate(type, atkTeamName, defTeamName, dir) {
   let cssClass = "narrator-line";
   
   const teams = getActiveTeams();
+  document.documentElement.style.setProperty('--home-color', teams.A.color || '#00b37e');
+  document.documentElement.style.setProperty('--home-secondary-color', teams.A.secondaryColor || '#18181b');
+  document.documentElement.style.setProperty('--away-color', teams.B.color || '#f75a68');
+  document.documentElement.style.setProperty('--away-secondary-color', teams.B.secondaryColor || '#18181b');
   const isHomeAtk = (matchState.half === 5) ? (matchState.penalties.currentKicker === 'A') : (matchState.currentAttacker === 'A');
   
   const atkPlayers = isHomeAtk ? teams.A.players : teams.B.players;
@@ -490,7 +899,9 @@ function startEngine(isOnlineReady) {
     isCorner: false, isFromCornerShort: false,
     penalties: { historyA: [], historyB: [], kicksA: 0, kicksB: 0, currentKicker: 'A' },
     goalsA: [],
-    goalsB: []
+    goalsB: [],
+    playerHistory: { attack: [], defense: [], direction: [], corner: [] },
+    aiHistory: { attack: [], defense: [], direction: [], corner: [] }
   };
   
   if (gameMode === 'penalties_only') {
@@ -517,41 +928,33 @@ function submitGameAction(context, move) {
     socket.emit('submitMove', { roomId: onlineRoomId, role: onlinePlayerRole, move: move });
   } else {
     // Modo IA
-    matchState.pendingAttackMove = null;
-    matchState.pendingDefenseMove = null;
-    
     const isUserAttacking = (matchState.currentAttacker === 'A');
+    recordPlayerChoice(context, move);
     
     if (context === 'ADVANCE') {
       if (isUserAttacking) {
         matchState.pendingAttackMove = move;
-        matchState.pendingDefenseMove = getIARandomDefense();
       } else {
         matchState.pendingDefenseMove = move;
       }
-      resolveAdvance();
     } else if (context === 'CORNER') {
       if (isUserAttacking) {
         matchState.pendingAttackMove = move;
-        matchState.pendingDefenseMove = ["OLIMPICO", "MUVUCA", "CURTO"][Math.floor(Math.random() * 3)];
       } else {
         matchState.pendingDefenseMove = move;
       }
-      resolveCorner();
     } else if (context === 'DIRECTION') {
       if (isUserAttacking || (matchState.half === 5 && matchState.penalties.currentKicker === 'A')) {
         matchState.pendingAttackMove = move;
-        matchState.pendingDefenseMove = ["ESQUERDA", "MEIO", "DIREITA"][Math.floor(Math.random() * 3)];
       } else {
         matchState.pendingDefenseMove = move;
       }
-      
-      if (matchState.half === 5) {
-        resolvePenaltyKick();
-      } else {
-        resolveDirection();
-      }
     }
+
+    if (context === 'ADVANCE') resolveAdvance();
+    else if (context === 'CORNER') resolveCorner();
+    else if (matchState.half === 5) resolvePenaltyKick();
+    else resolveDirection();
   }
 }
 
@@ -586,10 +989,15 @@ function initTurn() {
     : (matchState.currentAttacker === 'A');
 
   if (isMyTurnToAttack) {
+    if (gameMode === 'ia') {
+      matchState.pendingDefenseMove = getIARandomDefense();
+      recordAIChoice('defense', matchState.pendingDefenseMove);
+    }
     showAttackPanel();
   } else {
     if (gameMode === 'ia') {
       matchState.pendingAttackMove = getIARandomAttack();
+      recordAIChoice('attack', matchState.pendingAttackMove);
       showDefensePanel();
     } else if (gameMode === 'online') {
       showDefensePanel();
@@ -637,12 +1045,26 @@ function setupCornerTurn() {
     : (matchState.currentAttacker === 'A');
 
   if (isMyTurnToAttack) {
+    if (gameMode === 'ia') {
+      const opts = ["OLIMPICO", "MUVUCA", "CURTO"];
+      matchState.pendingDefenseMove = getAIAction(opts, 'cornerWeights', matchState.aiHistory.corner, matchState.playerHistory.corner, {
+        OLIMPICO: 'OLIMPICO',
+        MUVUCA: 'MUVUCA',
+        CURTO: 'CURTO'
+      });
+      recordAIChoice('corner', matchState.pendingDefenseMove);
+    }
     document.getElementById("panel-corner-attack").classList.remove("hidden");
   } else {
     document.getElementById("panel-corner-defense").classList.remove("hidden");
     if (gameMode === 'ia') {
       const opts = ["OLIMPICO", "MUVUCA", "CURTO"];
-      matchState.pendingAttackMove = opts[Math.floor(Math.random() * opts.length)];
+      matchState.pendingAttackMove = getAIAction(opts, 'cornerWeights', matchState.aiHistory.corner, matchState.playerHistory.corner, {
+        OLIMPICO: 'MUVUCA',
+        MUVUCA: 'CURTO',
+        CURTO: 'OLIMPICO'
+      });
+      recordAIChoice('corner', matchState.pendingAttackMove);
     }
   }
 }
@@ -676,12 +1098,86 @@ function resolveCorner() {
 
 function getIARandomAttack() {
   const opts = matchState.advanceLevel === 1 ? ["PASSE", "DRIBLE"] : ["PASSE", "DRIBLE", "CHUTE"];
-  return opts[Math.floor(Math.random() * opts.length)];
+  const move = getAIAction(opts, 'attackWeights', matchState.aiHistory.attack, matchState.playerHistory.defense, {
+    DIVIDIDA: 'PASSE',
+    INTERCEPTAÇÃO: 'DRIBLE',
+    BLOQUEIO: 'PASSE'
+  });
+  return move;
 }
 
 function getIARandomDefense() {
   const opts = matchState.advanceLevel === 1 ? ["DIVIDIDA", "INTERCEPTAÇÃO"] : ["DIVIDIDA", "INTERCEPTAÇÃO", "BLOQUEIO"];
-  return opts[Math.floor(Math.random() * opts.length)];
+  return getAIAction(opts, 'defenseWeights', matchState.aiHistory.defense, matchState.playerHistory.attack, {
+    DRIBLE: 'DIVIDIDA',
+    PASSE: 'INTERCEPTAÇÃO',
+    CHUTE: 'BLOQUEIO'
+  });
+}
+
+function getAIChoice(options, weightKey) {
+  const settings = aiDifficultySettings[aiDifficulty] || aiDifficultySettings.medium;
+  const weights = settings[weightKey];
+  const availableOptions = options.filter(option => weights[option] !== undefined);
+  const totalWeight = availableOptions.reduce((total, option) => total + weights[option], 0);
+  let randomValue = Math.random() * totalWeight;
+
+  for (const option of availableOptions) {
+    randomValue -= weights[option];
+    if (randomValue < 0) return option;
+  }
+
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+function getAIAction(options, weightKey, ownHistory, playerHistory, counterMoves) {
+  const recentOwnMove = ownHistory[ownHistory.length - 1];
+  const settings = aiDifficultySettings[aiDifficulty] || aiDifficultySettings.medium;
+
+  if (aiDifficulty === 'easy' && options.includes(recentOwnMove) && Math.random() < 0.65) {
+    return recentOwnMove;
+  }
+
+  if (aiDifficulty === 'hard' && playerHistory.length > 0) {
+    const recentPlayerMoves = playerHistory.slice(-5);
+    const counts = recentPlayerMoves.reduce((result, move) => {
+      result[move] = (result[move] || 0) + 1;
+      return result;
+    }, {});
+    const predictedMove = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+    const counterMove = counterMoves[predictedMove];
+
+    if (options.includes(counterMove) && Math.random() < 0.75) {
+      return counterMove;
+    }
+  }
+
+  if (aiDifficulty === 'medium' && options.length > 1 && options.includes(recentOwnMove) && Math.random() < 0.35) {
+    const alternatives = options.filter(option => option !== recentOwnMove);
+    return alternatives[Math.floor(Math.random() * alternatives.length)];
+  }
+
+  return getAIChoice(options, weightKey);
+}
+
+function recordHistory(history, move) {
+  history.push(move);
+  if (history.length > 10) history.shift();
+}
+
+function recordAIChoice(type, move) {
+  recordHistory(matchState.aiHistory[type], move);
+}
+
+function recordPlayerChoice(context, move) {
+  if (context === 'ADVANCE') {
+    const type = matchState.currentAttacker === 'A' ? 'attack' : 'defense';
+    recordHistory(matchState.playerHistory[type], move);
+  } else if (context === 'DIRECTION') {
+    recordHistory(matchState.playerHistory.direction, move);
+  } else if (context === 'CORNER') {
+    recordHistory(matchState.playerHistory.corner, move);
+  }
 }
 
 function resolveAdvance() {
@@ -753,8 +1249,21 @@ function triggerCantos() {
     ? "Escolha a direção da bola no gol:" 
     : "Escolha para onde seu goleiro vai pular:";
 
-  if (gameMode === 'ia' && !isMyTurnToAttack) {
-    matchState.pendingAttackMove = ["ESQUERDA", "MEIO", "DIREITA"][Math.floor(Math.random() * 3)];
+  const directions = ["ESQUERDA", "MEIO", "DIREITA"];
+  if (gameMode === 'ia' && isMyTurnToAttack) {
+    matchState.pendingDefenseMove = getAIAction(directions, 'directionWeights', matchState.aiHistory.direction, matchState.playerHistory.direction, {
+      ESQUERDA: 'ESQUERDA',
+      MEIO: 'MEIO',
+      DIREITA: 'DIREITA'
+    });
+    recordAIChoice('direction', matchState.pendingDefenseMove);
+  } else if (gameMode === 'ia') {
+    matchState.pendingAttackMove = getAIAction(directions, 'directionWeights', matchState.aiHistory.direction, matchState.playerHistory.direction, {
+      ESQUERDA: 'DIREITA',
+      MEIO: 'ESQUERDA',
+      DIREITA: 'MEIO'
+    });
+    recordAIChoice('direction', matchState.pendingAttackMove);
   }
 }
 
@@ -778,7 +1287,21 @@ function setupPenaltyKick() {
     : "Escolha onde o seu goleiro vai pular:";
 
   if ((gameMode === 'ia' || gameMode === 'penalties_only') && p.currentKicker === 'B') {
-    matchState.pendingAttackMove = ["ESQUERDA", "MEIO", "DIREITA"][Math.floor(Math.random() * 3)];
+    const directions = ["ESQUERDA", "MEIO", "DIREITA"];
+    matchState.pendingAttackMove = getAIAction(directions, 'directionWeights', matchState.aiHistory.direction, matchState.playerHistory.direction, {
+      ESQUERDA: 'DIREITA',
+      MEIO: 'ESQUERDA',
+      DIREITA: 'MEIO'
+    });
+    recordAIChoice('direction', matchState.pendingAttackMove);
+  } else if ((gameMode === 'ia' || gameMode === 'penalties_only') && p.currentKicker === 'A') {
+    const directions = ["ESQUERDA", "MEIO", "DIREITA"];
+    matchState.pendingDefenseMove = getAIAction(directions, 'directionWeights', matchState.aiHistory.direction, matchState.playerHistory.direction, {
+      ESQUERDA: 'ESQUERDA',
+      MEIO: 'MEIO',
+      DIREITA: 'DIREITA'
+    });
+    recordAIChoice('direction', matchState.pendingDefenseMove);
   }
 }
 
