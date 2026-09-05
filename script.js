@@ -2005,4 +2005,3 @@ function quitMatch() {
     }
   }
 }
-s
