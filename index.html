@@ -60,6 +60,24 @@
     <hr class="divider" />
     
     <h2>Iniciar Partida</h2>
+    <div class="difficulty-selector">
+      <label for="aiDifficulty">Dificuldade da IA:</label>
+      <select id="aiDifficulty">
+        <option value="easy">Fácil</option>
+        <option value="medium" selected>Médio</option>
+        <option value="hard">Difícil</option>
+      </select>
+    </div>
+    <div class="flex responsive-flex opponent-selector-row">
+      <div class="flex-item-1">
+        <label for="aiLeagueSelect">Liga:</label>
+        <select id="aiLeagueSelect" onchange="updateOpponentSelector()"></select>
+      </div>
+      <div class="flex-item-1">
+        <label for="aiOpponentSelect">Adversário:</label>
+        <select id="aiOpponentSelect" onchange="selectOpponent()"></select>
+      </div>
+    </div>
     <div class="flex responsive-flex">
       <button onclick="startMode('ia')" class="btn-large">Jogar Partida Completa (IA)</button>
       <button onclick="startMode('penalties_only')" class="btn-large btn-gold">Disputa de Pênaltis Direto</button>
@@ -68,6 +86,73 @@
       <button onclick="startMode('online')" class="btn-secondary btn-large">Modo Online (Matchmaking Privado)</button>
       <button onclick="showScreen('screen-tutorial')" class="btn-secondary btn-large">📖 Como Jogar (Tutorial)</button>
     </div>
+    <button onclick="openLeagueManager()" class="btn-secondary" style="margin-top: 10px;">⚽ Gerenciar Ligas e Times</button>
+  </div>
+
+  <!-- TELA 1.8: GERENCIADOR DE LIGAS E TIMES -->
+  <div id="screen-leagues" class="card hidden">
+    <div class="manager-header">
+      <div>
+        <p class="eyebrow">CONFIGURAÇÃO DO UNIVERSO</p>
+        <h2>Gerenciador de Ligas e Times</h2>
+      </div>
+      <button onclick="showScreen('screen-setup')" class="btn-secondary manager-back-button">Voltar</button>
+    </div>
+
+    <div class="manager-grid">
+      <section class="manager-panel">
+        <h3>Ligas</h3>
+        <div class="inline-form">
+          <input type="text" id="leagueNameInput" placeholder="Nome da nova liga" />
+          <button onclick="createLeague()">Criar</button>
+        </div>
+        <div id="leagueList" class="manager-list"></div>
+      </section>
+
+      <section class="manager-panel">
+        <div class="manager-panel-title">
+          <h3 id="teamFormTitle">Novo time</h3>
+          <button onclick="resetTeamForm()" class="btn-secondary compact-button">Limpar</button>
+        </div>
+        <input type="hidden" id="editingTeamId" />
+        <label for="managerLeagueSelect">Liga do time:</label>
+        <select id="managerLeagueSelect"></select>
+        <label for="managerTeamName">Nome do time:</label>
+        <input type="text" id="managerTeamName" placeholder="Ex.: Aurora FC" />
+
+        <div class="flex responsive-flex">
+          <div class="flex-item-1">
+            <label for="managerPrimaryColor">Cor principal:</label>
+            <input type="color" id="managerPrimaryColor" value="#00b37e" class="color-input" />
+          </div>
+          <div class="flex-item-1">
+            <label for="managerSecondaryColor">Cor secundária:</label>
+            <input type="color" id="managerSecondaryColor" value="#f4f4f5" class="color-input" />
+          </div>
+        </div>
+
+        <label for="managerLogoUrl">Logo por URL:</label>
+        <input type="text" id="managerLogoUrl" placeholder="https://.../escudo.png" />
+        <label for="managerLogoFile">Ou envie uma imagem:</label>
+        <input type="file" id="managerLogoFile" accept="image/*" onchange="handleManagerLogoUpload(event)" />
+        <img id="managerLogoPreview" class="manager-logo-preview" alt="Prévia do escudo" />
+
+        <div class="manager-panel-title roster-heading">
+          <h3>Elenco</h3>
+          <button onclick="addRosterRow()" class="btn-secondary compact-button">Adicionar jogador</button>
+        </div>
+        <div id="rosterEditor" class="roster-editor"></div>
+        <button onclick="saveManagedTeam()" class="btn-large">Salvar time</button>
+      </section>
+    </div>
+
+    <section class="manager-panel team-catalog-panel">
+      <div class="manager-panel-title">
+        <h3>Times cadastrados</h3>
+        <span id="teamCatalogCount" class="catalog-count"></span>
+      </div>
+      <div id="teamCatalog" class="team-catalog"></div>
+    </section>
   </div>
 
   <!-- TELA 1.5: TUTORIAL E REGRAS -->
