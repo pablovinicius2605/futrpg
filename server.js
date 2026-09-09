@@ -164,3 +164,81 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor de Game Engine Autoritativa rodando na porta ${PORT}`);
 });
+// --- SISTEMA DE COPA ONLINE (ADICIONAR NO FINAL DO SERVER.JS) ---
+let copasOnline = [];
+
+if (typeof io !== 'undefined' || typeof socket !== 'undefined' || global.io) {
+    // Se estiver usando Socket.io para sincronizar os jogos em tempo real:
+    // (Opcional caso queira eventos em tempo real, mas a API REST funciona direto)
+}
+
+// Rota/Manipulador para criar a Copa
+function registrarRotasCopa(app) {
+    app.use(express.json());
+
+    app.post('/api/copa/criar', (req, res) => {
+        const { nomeCopa, criador } = req.body;
+        const novaCopa = {
+            id: Date.now(),
+            nome: nomeCopa || "Copa FutRPG",
+            criador: criador || "Admin",
+            participantes: [],
+            partidas: [],
+            fase: 'inscricoes' // 'inscricoes', 'quartas', 'semifinal', 'final', 'encerrado'
+        };
+        copasOnline.push(novaCopa);
+        res.json({ sucesso: true, copa: novaCopa });
+    });
+
+    app.post('/api/copa/:id/entrar', (req, res) => {
+        const copa = copasOnline.find(c => c.id == req.params.id);
+        if (!copa) return res.status(404).json({ erro: "Copa não encontrada" });
+        if (copa.participantes.length >= 8) return res.status(400).json({ erro: "Copa cheia (Máx: 8 times)" });
+        
+        copa.participantes.push(req.body.nomeTime);
+        res.json({ sucesso: true, participantes: copa.participantes });
+    });
+
+    app.post('/api/copa/:id/iniciar', (req, res) => {
+        const copa = copasOnline.find(c => c.id == req.params.id);
+        if (!copa) return res.status(404).json({ erro: "Copa não encontrada" });
+        
+        let times = [...copa.participantes];
+        // Embaralhar times aleatoriamente para o chaveamento da Copa
+        times.sort(() => Math.random() - 0.5);
+
+        copa.partidas = [];
+        for (let i = 0; i < times.length; i += 2) {
+            if (times[i+1]) {
+                copa.partidas.push({
+                    id: Math.random().toString(36.substring(2, 9)),
+                    timeA: times[i],
+                    timeB: times[i+1],
+                    golsA: null,
+                    golsB: null,
+                    vencedor: null
+                });
+            }
+        }
+        copa.fase = 'quartas';
+        res.json({ sucesso: true, copa });
+    });
+
+    app.post('/api/copa/:id/resultado', (req, res) => {
+        const { partidaId, golsA, golsB } = req.body;
+        const copa = copasOnline.find(c => c.id == req.params.id);
+        if (!copa) return res.status(404).json({ erro: "Copa não encontrada" });
+
+        const partida = copa.partidas.find(p => p.id == partidaId);
+        if (!partida) return res.status(404).json({ erro: "Partida não encontrada" });
+
+        partida.golsA = golsA;
+        partida.golsB = golsB;
+
+        if (golsA > golsB) partida.vencedor = partida.timeA;
+        else if (golsB > golsA) partida.vencedor = partida.timeB;
+        else partida.vencedor = partida.timeA; // Critério de desempate simples (empate vai pro time A ou prorrogação)
+
+        res.json({ sucesso: true, partida });
+    });
+}
