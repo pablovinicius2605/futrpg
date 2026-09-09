@@ -446,104 +446,148 @@
   </div>
 </div>
 
-<!-- BOTÃO E PAINEL DO MODO COPA -->
-<button onclick="alternarPainelCopa()" style="background-color: #f39c12; color: #fff; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">MODO COPA ONLINE</button>
-
-<div id="painel-copa-online" style="display:none; background: rgba(0,0,0,0.95); color: white; padding: 20px; border-radius: 8px; margin-top: 15px; border: 1px solid #f39c12;">
+<!-- MODO COPA ONLINE (FRONTEND PURO) -->
+<div id="painel-copa-online" style="display:none; background: rgba(0,0,0,0.95); color: white; padding: 20px; border-radius: 8px; margin: 20px auto; max-width: 600px; font-family: sans-serif; border: 1px solid #f39c12; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 9999;">
     <h3>🏆 Modo Copa Online (Mata-Mata)</h3>
     <div id="copa-menu">
         <input type="text" id="inputNomeCopa" placeholder="Nome da Copa" style="padding: 8px; width: 60%; background: #222; color: #fff; border: 1px solid #444;">
-        <button onclick="criarCopa()" style="padding: 8px 15px; cursor: pointer; background: #27ae60; color: #fff; border: none;">Criar Copa</button>
-        <div id="lista-copas" style="margin-top: 15px;"></div>
+        <button onclick="criarCopaLocal()" style="padding: 8px 15px; cursor: pointer; background: #27ae60; color: #fff; border: none;">Criar Copa</button>
+        <div id="lista-copas-local" style="margin-top: 15px;"></div>
     </div>
     <div id="copa-chaveamento" style="display:none; margin-top: 15px;">
         <h4 id="titulo-fase">Chaveamento da Copa</h4>
-        <div id="container-partidas"></div>
+        <div id="container-partidas-local"></div>
     </div>
+    <button onclick="fecharPainelCopa()" style="margin-top: 15px; padding: 5px 10px; background: #c0392b; color: #fff; border: none; cursor: pointer;">Fechar</button>
 </div>
 
 <script>
-function alternarPainelCopa() {
-    const painel = document.getElementById('painel-copa-online');
-    painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+function openOnlineCupLobby() {
+    document.getElementById('painel-copa-online').style.display = 'block';
+    carregarCopasLocal();
 }
 
-let copaAtualId = null;
-
-async function criarCopa() {
-    const nomeCopa = document.getElementById('inputNomeCopa').value || "Copa Online";
-    const res = await fetch('/api/copa/criar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nomeCopa, criador: "Jogador" })
-    });
-    const data = await res.json();
-    if(data.sucesso) {
-        copaAtualId = data.copa.id;
-        entrarCopa(copaAtualId);
-    }
+function fecharPainelCopa() {
+    document.getElementById('painel-copa-online').style.display = 'none';
 }
 
-async function entrarCopa(id) {
-    const nomeTime = prompt("Digite o nome do seu Time para entrar na Copa:");
-    if(!nomeTime) return;
-
-    const res = await fetch(`/api/copa/${id}/entrar`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nomeTime })
-    });
-    const data = await res.json();
-    if(data.sucesso) {
-        alert("Você entrou na copa! Participantes: " + data.participantes.join(", "));
-        if(data.participantes.length >= 2) {
-            iniciarCopa(id);
-        }
+function carregarCopasLocal() {
+    let copas = JSON.parse(localStorage.getItem('futrpg_copas') || '[]');
+    let listaHTML = '<h4>Copas Disponíveis:</h4>';
+    if(copas.length === 0) {
+        listaHTML += '<p>Nenhuma copa criada ainda. Crie uma acima!</p>';
     } else {
-        alert(data.erro);
+        copas.forEach(c => {
+            listaHTML += `<div style="background:#333; padding:8px; margin:5px 0; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                <span><b>${c.nome}</b> (${c.participantes.length} times)</span>
+                <button onclick="entrarCopaLocal('${c.id}')" style="padding:5px 10px; background:#2980b9; color:#fff; border:none; cursor:pointer;">Entrar</button>
+            </div>`;
+        });
     }
+    document.getElementById('lista-copas-local').innerHTML = listaHTML;
 }
 
-async function iniciarCopa(id) {
-    const res = await fetch(`/api/copa/${id}/iniciar`, { method: 'POST' });
-    const data = await res.json();
-    if(data.sucesso) {
-        document.getElementById('copa-menu').style.display = 'none';
-        document.getElementById('copa-chaveamento').style.display = 'block';
-        renderizarPartidas(data.copa.partidas);
-    }
+function criarCopaLocal() {
+    const nome = document.getElementById('inputNomeCopa').value || "Copa FutRPG";
+    let copas = JSON.parse(localStorage.getItem('futrpg_copas') || '[]');
+    
+    const novaCopa = {
+        id: 'copa_' + Date.now(),
+        nome: nome,
+        participantes: [],
+        partidas: [],
+        status: 'inscricoes'
+    };
+    
+    copas.push(novaCopa);
+    localStorage.setItem('futrpg_copas', JSON.stringify(copas));
+    entrarCopaLocal(novaCopa.id);
 }
 
-function renderizarPartidas(partidas) {
-    const container = document.getElementById('container-partidas');
-    container.innerHTML = '';
-    partidas.forEach(p => {
-        container.innerHTML += `
+function entrarCopaLocal(copaId) {
+    let copas = JSON.parse(localStorage.getItem('futrpg_copas') || '[]');
+    let copa = copas.find(c => c.id === copaId);
+    
+    if(!copa) return alert("Copa não encontrada!");
+    
+    const nomeTime = prompt("Digite o nome do seu Time:");
+    if(!nomeTime) return;
+    
+    if(copa.participantes.includes(nomeTime)) {
+        alert("Este time já está participando!");
+    } else {
+        copa.participantes.push(nomeTime);
+        localStorage.setItem('futrpg_copas', JSON.stringify(copas));
+    }
+    
+    if(copa.participantes.length >= 2 && copa.status === 'inscricoes') {
+        if(confirm("Já temos times suficientes. Deseja sortear o mata-mata?")) {
+            iniciarCopaLocal(copaId);
+            return;
+        }
+    }
+    carregarCopasLocal();
+}
+
+function iniciarCopaLocal(copaId) {
+    let copas = JSON.parse(localStorage.getItem('futrpg_copas') || '[]');
+    let copa = copas.find(c => c.id === copaId);
+    
+    let times = [...copa.participantes];
+    times.sort(() => Math.random() - 0.5);
+    
+    copa.partidas = [];
+    for (let i = 0; i < times.length; i += 2) {
+        if (times[i + 1]) {
+            copa.partidas.push({
+                id: 'match_' + Math.random().toString(36).substring(2, 7),
+                timeA: times[i],
+                timeB: times[i + 1],
+                golsA: 0,
+                golsB: 0,
+                status: 'pendente'
+            });
+        }
+    }
+    copa.status = 'andamento';
+    localStorage.setItem('futrpg_copas', JSON.stringify(copas));
+    
+    document.getElementById('copa-menu').style.display = 'none';
+    document.getElementById('copa-chaveamento').style.display = 'block';
+    renderizarChaveamentoLocal(copa);
+}
+
+function renderizarChaveamentoLocal(copa) {
+    const container = document.getElementById('container-partidas-local');
+    let html = '<h4>Quartas de Final / Mata-Mata</h4>';
+    
+    copa.partidas.forEach(p => {
+        html += `
             <div style="background: #222; padding: 10px; margin: 8px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
                 <span><b>${p.timeA}</b> vs <b>${p.timeB}</b></span>
                 <div>
-                    <input type="number" id="golsA_${p.id}" value="${p.golsA || 0}" style="width: 40px;"> x 
-                    <input type="number" id="golsB_${p.id}" value="${p.golsB || 0}" style="width: 40px;">
-                    <button onclick="salvarResultado('${p.id}')">Salvar</button>
+                    <input type="number" id="golsA_${p.id}" value="${p.golsA}" style="width: 35px; text-align:center;"> x 
+                    <input type="number" id="golsB_${p.id}" value="${p.golsB}" style="width: 35px; text-align:center;">
+                    <button onclick="salvarPartidaLocal('${copa.id}', '${p.id}')" style="background:#e67e22; color:#fff; border:none; padding:4px 8px; cursor:pointer;">Atualizar</button>
                 </div>
             </div>
         `;
     });
+    container.innerHTML = html;
 }
 
-async function salvarResultado(partidaId) {
-    const golsA = parseInt(document.getElementById(`golsA_${partidaId}`).value);
-    const golsB = parseInt(document.getElementById(`golsB_${partidaId}`).value);
-
-    const res = await fetch(`/api/copa/${copaAtualId}/resultado`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ partidaId, golsA, golsB })
-    });
-    const data = await res.json();
-    if(data.sucesso) {
-        alert(`Partida finalizada! Vencedor: ${data.partida.vencedor}`);
-    }
+function salvarPartidaLocal(copaId, partidaId) {
+    let copas = JSON.parse(localStorage.getItem('futrpg_copas') || '[]');
+    let copa = copas.find(c => c.id === copaId);
+    let partida = copa.partidas.find(p => p.id === partidaId);
+    
+    partida.golsA = parseInt(document.getElementById(`golsA_${partidaId}`).value) || 0;
+    partida.golsB = parseInt(document.getElementById(`golsB_${partidaId}`).value) || 0;
+    partida.status = 'finalizado';
+    
+    localStorage.setItem('futrpg_copas', JSON.stringify(copas));
+    alert("Placares salvos com sucesso!");
+    renderizarChaveamentoLocal(copa);
 }
 </script>
 </body>
