@@ -447,5 +447,98 @@
 </div>
 
 <script src="script.js"></script>
+  <!-- MODO COPA ONLINE - INTERFACE INTEGRADA -->
+<div id="painel-copa-online" style="background: rgba(0,0,0,0.85); color: white; padding: 20px; border-radius: 8px; margin: 20px auto; max-width: 600px; font-family: sans-serif;">
+    <h3>🏆 Modo Copa Online (Mata-Mata)</h3>
+    <div id="copa-menu">
+        <input type="text" id="inputNomeCopa" placeholder="Nome da Copa" style="padding: 5px; width: 60%;">
+        <button onclick="criarCopa()" style="padding: 6px 12px; cursor: pointer;">Criar Copa</button>
+        <div id="lista-copas" style="margin-top: 15px;"></div>
+    </div>
+    <div id="copa-chaveamento" style="display:none; margin-top: 15px;">
+        <h4 id="titulo-fase">Chaveamento da Copa</h4>
+        <div id="container-partidas"></div>
+    </div>
+</div>
+
+<script>
+let copaAtualId = null;
+
+async function criarCopa() {
+    const nomeCopa = document.getElementById('inputNomeCopa').value || "Copa Online";
+    const res = await fetch('/api/copa/criar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nomeCopa, criador: "Jogador" })
+    });
+    const data = await res.json();
+    if(data.sucesso) {
+        copaAtualId = data.copa.id;
+        entrarCopa(copaAtualId);
+    }
+}
+
+async function entrarCopa(id) {
+    const nomeTime = prompt("Digite o nome do seu Time para entrar na Copa:");
+    if(!nomeTime) return;
+
+    const res = await fetch(`/api/copa/${id}/entrar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nomeTime })
+    });
+    const data = await res.json();
+    if(data.sucesso) {
+        alert("Você entrou na copa! Participantes: " + data.participantes.join(", "));
+        if(data.participantes.length >= 2) {
+            iniciarCopa(id);
+        }
+    } else {
+        alert(data.erro);
+    }
+}
+
+async function iniciarCopa(id) {
+    const res = await fetch(`/api/copa/${id}/iniciar`, { method: 'POST' });
+    const data = await res.json();
+    if(data.sucesso) {
+        document.getElementById('copa-menu').style.display = 'none';
+        document.getElementById('copa-chaveamento').style.display = 'block';
+        renderizarPartidas(data.copa.partidas);
+    }
+}
+
+function renderizarPartidas(partidas) {
+    const container = document.getElementById('container-partidas');
+    container.innerHTML = '';
+    partidas.forEach(p => {
+        container.innerHTML += `
+            <div style="background: #222; padding: 10px; margin: 8px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                <span><b>${p.timeA}</b> vs <b>${p.timeB}</b></span>
+                <div>
+                    <input type="number" id="golsA_${p.id}" value="${p.golsA || 0}" style="width: 40px;"> x 
+                    <input type="number" id="golsB_${p.id}" value="${p.golsB || 0}" style="width: 40px;">
+                    <button onclick="salvarResultado('${p.id}')">Salvar</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+async function salvarResultado(partidaId) {
+    const golsA = parseInt(document.getElementById(`golsA_${partidaId}`).value);
+    const golsB = parseInt(document.getElementById(`golsB_${partidaId}`).value);
+
+    const res = await fetch(`/api/copa/${copaAtualId}/resultado`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partidaId, golsA, golsB })
+    });
+    const data = await res.json();
+    if(data.sucesso) {
+        alert(`Partida finalizada! Vencedor: ${data.partida.vencedor}`);
+    }
+}
+</script>
 </body>
 </html>
